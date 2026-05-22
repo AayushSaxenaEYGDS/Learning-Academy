@@ -1,0 +1,128 @@
+You are working on a frontend project.
+IMPORTANT: Only modify simple-frontend/index.html, styles.css, and app.js.
+DO NOT modify the root index.html.
+Fix UI and functionality step by step as described below:
+
+✅ 1. Pillar Detail Page → Convert Topics List into Cards
+
+Currently Topics are shown as horizontal tiles (list format).
+Convert them into card-based layout like Pillars page.
+Requirements:
+
+Use a grid layout with 3 cards per row
+Cards should have:
+
+Title (topic name)
+Short description (dummy content)
+Clickable behavior
+
+
+Cards should look consistent with pillar cards (same styling pattern)
+
+
+
+
+✅ 2. Add Topic Button Functionality
+
+"Add Topic" button should:
+
+Dynamically create a new topic card
+Automatically place it in the grid (next available position)
+Generate a unique Topic Detail Page
+
+Each topic page must have different content
+You can simulate this using:
+
+JavaScript routing (if SPA)
+OR dynamic content rendering
+
+
+
+
+
+
+Ensure clicking any topic card opens its respective detail page
+
+
+
+
+✅ 3. Fix Header UI
+
+Remove the "Explore Pillars" button from the top-right
+Improve search bar:
+
+Increase width
+Make it more prominent (padding, border radius, alignment)
+Keep it responsive
+
+
+
+
+✅ 4. Homepage Right Section (Logo Fix)
+
+Replace the empty placeholder box on the right side with:
+
+Logo.png
+
+
+Ensure:
+
+Proper scaling (not stretched)
+Center alignment vertically and horizontally
+
+
+
+
+✅ 5. Remove Unwanted Text in Hero Section
+Remove this entire line:
+4 Business Pillars
+16 Topics
+SME-Led
+
+
+✅ 6. Update Stats Section Content
+Find the section showing:
+4 Pillars
+16 Topics
+50+ Learning Hours
+100% SME-Led
+
+Replace it with:
+90+ Team Members
+1000+ Automated Hours
+50+ Learning Hours
+100% SME-Led
+
+
+✅ 7. Fix All Functionality Across Project
+Make sure:
+
+Navigation between Home, Pillars, Topics works correctly
+Topic cards open correct detail views
+No broken links or empty pages
+All buttons are functional
+Layout is responsive
+
+
+✅ 8. Code Quality Requirements
+
+Keep code modular and clean
+Use reusable classes for cards
+Avoid duplication
+Ensure CSS consistency with existing theme (dark + yellow)
+
+
+✅ 9. Bonus UI Improvements (if possible)
+
+Add hover effect on cards
+Smooth transitions (scale/hover)
+Highlight clickable elements clearly
+
+
+✅ Expected Result
+
+Clean professional UI
+Card-based Topics layout (3 per row)
+Working Add Topic functionality
+Functional navigation & pages
+No broken or incomplete elements
