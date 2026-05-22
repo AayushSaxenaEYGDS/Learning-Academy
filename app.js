@@ -1,5 +1,6 @@
 // Data
 let currentItemType = '';
+const topicDetails = {};
 const pillars = [
     {
         id: 'ai-ml-agents',
@@ -223,9 +224,7 @@ function showPillarDetail(pillar) {
 
     // Populate detail content
     document.getElementById('detailPillarTitle').textContent = pillar.title;
-    // document.getElementById('detailObjective').textContent = pillar.objective;
-    // document.getElementById('detailDescription').textContent = pillar.description;
-
+    
     // Populate SME Card
     const smeCard = document.getElementById('detailSMECard');
     smeCard.innerHTML = `
@@ -258,16 +257,15 @@ function showPillarDetail(pillar) {
         </div>
 
     <div class="topicsGrid">
-        ${pillar.topics.map((topic, idx) => {
+    ${pillar.topics.map((topic, idx) => {
 
-        const topicObj =
-            typeof topic === 'string'
-                ? {
-                    title: topic,
-                    description: 'Detailed SME-driven learning content',
-                    content: `Detailed content for ${topic}`
-                }
-                : topic;
+    const topicObj =
+        typeof topic === 'string'
+        ? {
+            title: topic,
+            description: 'Detailed SME-driven learning content'
+        }
+        : topic;
 
     return `
         <div
@@ -276,18 +274,17 @@ function showPillarDetail(pillar) {
                 'topic',
                 '${pillar.id}',
                 ${idx},
-                '${escapeHtml(topicObj.title)}'
+                '${topicObj.title}'
             )"
         >
-            <h3>${escapeHtml(topicObj.title)}</h3>
+            <h3>${topicObj.title}</h3>
 
-            <p>
-                ${topicObj.description}
-            </p>
+            <p>${topicObj.description}</p>
         </div>
     `;
+
 }).join('')}
-    </div>
+</div>
 `;
 
     // Scroll to top
@@ -332,18 +329,20 @@ function showItemDetail(type, pillarId, index, title) {
 
     if (type === 'topic') {
 
-        const pillar = pillars.find(p => p.id === pillarId);
+    const pillar =
+        pillars.find(p => p.id === pillarId);
 
-        if (pillar && pillar.topics[index]) {
+    if (pillar && pillar.topics[index]) {
 
-            const topic = pillar.topics[index];
+        const topic = pillar.topics[index];
 
-            if (typeof topic === 'object') {
+        if (typeof topic === 'object') {
 
-                content = topic.content || content;
-            }
+            content = topic.content;
+
         }
     }
+}
 
     const keyPointsList = document.getElementById('itemDetailKeyPoints');
     keyPointsList.innerHTML = `<p>${keyPoints.join(' ')}</p>`;
@@ -496,11 +495,13 @@ function submitAddItem(event) {
         content: itemContent
     };
 
-    // ADD TO CURRENT PILLAR
+    // ADD TOPIC
     if (itemType === 'topic') {
 
+        // STORE FULL OBJECT
         currentPillar.topics.push(newTopic);
 
+        // GLOBAL TOPICS ARRAY
         topics.push({
             id: newTopic.id,
             title: newTopic.title,
@@ -513,20 +514,18 @@ function submitAddItem(event) {
     // CLOSE MODAL
     closeAddItemModal();
 
-    // RELOAD UI
+    // RE-RENDER UPDATED PILLAR
     showPillarDetail(currentPillar);
 
-    // SUCCESS
     alert(`${itemName} created successfully.`);
 }
-
     
 
 // Add Pillar Modal Functions
 function openAddPillarModal() {
     const modal = document.getElementById('addPillarModal');
     const overlay = document.getElementById('pillarModalOverlay');
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
     overlay.style.display = 'block';
 }
 
@@ -763,71 +762,3 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
-function renderTopicsGrid(pillar) {
-    const topicsContainer = document.getElementById('topicsGridContainer');
-
-    if (!topicsContainer) return;
-
-    topicsContainer.innerHTML = '';
-
-    pillar.topics.forEach((topicName, index) => {
-        const card = document.createElement('div');
-        card.className = 'topicCard';
-
-        card.innerHTML = `
-            <h3>${topicName}</h3>
-            <p>
-                Detailed learning content and SME-driven material for ${topicName}.
-            </p>
-        `;
-
-        card.addEventListener('click', () => {
-            openTopicDetail(topicName, pillar.title, index);
-        });
-
-        topicsContainer.appendChild(card);
-    });
-}
-
-function openTopicDetail(topicName, pillarName, index) {
-    const detailContent = document.getElementById('detailContent');
-
-    detailContent.innerHTML = `
-        <div class="detailSection">
-            <button class="backBtn" onclick="showPillarDetail(currentPillar)">
-                ← Back
-            </button>
-
-            <h1>${topicName}</h1>
-
-            <p>
-                This is dynamically generated content for ${topicName} under ${pillarName}.
-                Each topic page now has separate rendered content.
-            </p>
-
-            <div class="detailCard">
-                <h3>Learning Objectives</h3>
-                <p>
-                    Topic ${index + 1} focuses on enterprise workflows,
-                    SOPs, automation and governance.
-                </p>
-            </div>
-        </div>
-    `;
-}
-
-function openAddItemModal(type) {
-
-    currentItemType = type;
-
-    document.getElementById('addItemModal').style.display = 'flex';
-    document.getElementById('modalOverlay').style.display = 'block';
-
-    document.getElementById('addItemModalTitle').textContent =
-        `Add New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-
-    document.getElementById('itemName').value = '';
-    document.getElementById('itemDescription').value = '';
-    document.getElementById('itemContent').value = '';
-}
