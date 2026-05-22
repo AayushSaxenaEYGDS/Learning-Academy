@@ -1,239 +1,118 @@
-// ==========================================================
-// CODE-BASED CONTENT STORAGE
-// ==========================================================
-// Add, edit, or remove pillars and topics here.
-// This replaces browser localStorage.
-//
-// Important:
-// Browser JavaScript cannot permanently write into app.js.
-// UI-created items are added for the current session only.
-// To make them permanent, copy the generated object from console
-// into academyStore.pillars or academyStore.topics below.
-// ==========================================================
+// Data
+let currentItemType = '';
+const pillars = [
+    {
+        id: 'ai-ml-agents',
+        title: 'AI/ML & Agents',
+        //description: 'Build intelligent systems and agentic AI workflows for enterprise automation',
+        //objective: 'Enable teams to understand and implement AI/ML solutions and agentic workflows for automating enterprise processes.',
+        smeName: 'Avinash Kumar',
+        smeEmail: 'avinash.kumar@pfizer.com',
+        smeRole: 'Senior Risk Consulting',
+        topics: ['Intro to AI', 'AI SOPs', 'AI Validation Checklist', 'AI Materials'],
+        sops: [
+            'SOP-001: AI Model Development Framework',
+            'SOP-002: Agent Workflow Configuration',
+            'SOP-003: Model Validation and Testing',
+            'SOP-004: Production Deployment Guidelines'
+        ],
+        materials: [
+            'AI Implementation Handbook',
+            'Agent Architecture Guide',
+            'Model Validation Checklist',
+            'Use Case Templates'
+        ]
+    },
+    {
+        id: 'etl',
+        title: 'ETL',
+        // description: 'Master data extraction, transformation, and loading across enterprise systems',
+        // objective: 'Equip teams with skills to design, build, and maintain efficient ETL pipelines for enterprise data integration.',
+        smeName: 'Arjun Agarwal',
+        smeEmail: 'arjun.agarwal@pfizer.com',
+        smeRole: 'Senior Risk Consulting',
+        topics: ['ETL Fundamentals', 'ETL SOPs', 'ETL Validation', 'ETL Materials'],
+        sops: [
+            'SOP-101: ETL Pipeline Design',
+            'SOP-102: Data Extraction Best Practices',
+            'SOP-103: Transformation Logic Implementation',
+            'SOP-104: Data Loading and Reconciliation'
+        ],
+        materials: [
+            'ETL Process Guide',
+            'Data Mapping Templates',
+            'Error Handling Procedures',
+            'Performance Optimization Guide'
+        ]
+    },
+    {
+        id: 'validation',
+        title: 'Validation',
+        // description: 'Ensure data quality, accuracy, and integrity throughout your workflows',
+        // objective: 'Establish consistent validation practices and ensure data quality across all enterprise systems and processes.',
+        smeName: 'Aayush Saxena',
+        smeEmail: 'aayush.saxena@pfizer.com',
+        smeRole: 'Senior Risk Consulting',
+        topics: ['Validation Basics', 'Validation SOPs', 'Validation Checklist', 'Validation Guide'],
+        sops: [
+            'SOP-201: Validation Planning and Strategy',
+            'SOP-202: Risk Assessment Framework',
+            'SOP-203: Test Execution and Documentation',
+            'SOP-204: Deviation Management and Closure'
+        ],
+        materials: [
+            'Validation Master Plan Template',
+            'Risk Assessment Matrix',
+            'Test Script Template',
+            'Evidence Collection Guide'
+        ]
+    },
+    {
+        id: 'btq',
+        title: 'BTQ',
+        //description: 'Business Technology & Quality - Transform operations with technology',
+        //objective: 'Integrate business processes with quality practices using modern technology solutions.',
+        smeName: 'Aniruddha Desai',
+        smeEmail: 'aniruddha.desai@pfizer.com',
+        smeRole: 'Operations & Technology Lead',
+        topics: ['BTQ Overview', 'BTQ SOPs', 'Quality Assurance', 'Technology Integration'],
+        sops: [
+            'SOP-301: Quality Process Design',
+            'SOP-302: Technology Integration Steps',
+            'SOP-303: Quality Monitoring and Metrics',
+            'SOP-304: Continuous Improvement Process'
+        ],
+        materials: [
+            'Quality Management System Guide',
+            'Process Improvement Toolkit',
+            'Metrics Dashboard Guide',
+            'Best Practices Compendium'
+        ]
+    }
+];
 
-const academyStore = {
-    pillars: [
-        {
-            id: 'model-consulting',
-            title: 'Model Consulting',
-            description: '',
-            objective: '',
-            smeName: 'Avinash Kumar',
-            smeEmail: 'avinash.kumar@pfizer.com',
-            smeRole: 'Senior Risk Consulting',
-            topics: [],
-            sops: [
-                'SOP-001: AI Model Development Framework',
-                'SOP-002: Agent Workflow Configuration',
-                'SOP-003: Model Validation and Testing',
-                'SOP-004: Production Deployment Guidelines'
-            ],
-            materials: [
-                'AI Implementation Handbook',
-                'Agent Architecture Guide',
-                'Model Validation Checklist',
-                'Use Case Templates'
-            ]
-        },
-        {
-            id: 'etl',
-            title: 'ETL',
-            description: '',
-            objective: '',
-            smeName: 'Arjun Agarwal',
-            smeEmail: 'arjun.agarwal@pfizer.com',
-            smeRole: 'Senior Risk Consulting',
-            topics: [],
-            sops: [
-                'SOP-101: ETL Pipeline Design',
-                'SOP-102: Data Extraction Best Practices',
-                'SOP-103: Transformation Logic Implementation',
-                'SOP-104: Data Loading and Reconciliation'
-            ],
-            materials: [
-                'ETL Process Guide',
-                'Data Mapping Templates',
-                'Error Handling Procedures',
-                'Performance Optimization Guide'
-            ]
-        },
-        {
-            id: 'validation',
-            title: 'Validation',
-            description: '',
-            objective: '',
-            smeName: 'Aayush Saxena',
-            smeEmail: 'aayush.saxena@pfizer.com',
-            smeRole: 'Senior Risk Consulting',
-            topics: [],
-            sops: [
-                'SOP-201: Validation Planning and Strategy',
-                'SOP-202: Risk Assessment Framework',
-                'SOP-203: Test Execution and Documentation',
-                'SOP-204: Deviation Management and Closure'
-            ],
-            materials: [
-                'Validation Master Plan Template',
-                'Risk Assessment Matrix',
-                'Test Script Template',
-                'Evidence Collection Guide'
-            ]
-        },
-        {
-            id: 'btq',
-            title: 'BTQ',
-            description: '',
-            objective: '',
-            smeName: 'Aniruddha Desai',
-            smeEmail: 'aniruddha.desai@pfizer.com',
-            smeRole: 'Operations & Technology Lead',
-            topics: [],
-            sops: [
-                'SOP-301: Quality Process Design',
-                'SOP-302: Technology Integration Steps',
-                'SOP-303: Quality Monitoring and Metrics',
-                'SOP-304: Continuous Improvement Process'
-            ],
-            materials: [
-                'Quality Management System Guide',
-                'Process Improvement Toolkit',
-                'Metrics Dashboard Guide',
-                'Best Practices Compendium'
-            ]
-        }
-    ],
-
-    topics: [
-        {
-            id: 'intro-ai',
-            title: 'Intro to AI',
-            pillarId: 'model-consulting',
-            description: 'Introduction to AI and Machine Learning concepts',
-            content: 'This topic introduces foundational AI concepts including supervised and unsupervised learning, model evaluation, and common use-cases in enterprise settings. Learners will get an overview of typical architectures, data requirements, and ethical considerations specific to regulated environments.'
-        },
-        {
-            id: 'sop-ai',
-            title: 'AI SOPs',
-            pillarId: 'model-consulting',
-            description: 'Standard Operating Procedures for AI systems',
-            content: 'This topic provides a practical set of SOPs for developing, testing and deploying AI systems at scale. It covers version control, model validation checkpoints, deployment gates, monitoring and rollback procedures.'
-        },
-        {
-            id: 'ai-validation-checklist',
-            title: 'AI Validation Checklist',
-            pillarId: 'model-consulting',
-            description: 'Checklist for AI validation activities',
-            content: 'This topic covers validation checkpoints, governance expectations, testing requirements, and documentation needs for AI-enabled solutions.'
-        },
-        {
-            id: 'ai-materials',
-            title: 'AI Materials',
-            pillarId: 'model-consulting',
-            description: 'Reference materials for AI learning',
-            content: 'Reference materials, templates, examples, and supporting documentation for AI and machine learning learning paths.'
-        },
-        {
-            id: 'intro-etl',
-            title: 'ETL Fundamentals',
-            pillarId: 'etl',
-            description: 'Understand the basics of ETL processes',
-            content: 'Covers extraction strategies, transformation best practices, and loading patterns. Includes guidance on mapping, error handling, idempotency, and performance tuning for enterprise data pipelines.'
-        },
-        {
-            id: 'sop-etl',
-            title: 'ETL SOPs',
-            pillarId: 'etl',
-            description: 'Standard Operating Procedures for ETL',
-            content: 'Standard procedures for executing and maintaining ETL processes, including scheduling, monitoring, data reconciliation and incident response steps.'
-        },
-        {
-            id: 'etl-validation',
-            title: 'ETL Validation',
-            pillarId: 'etl',
-            description: 'Validation approach for ETL pipelines',
-            content: 'Covers reconciliation, transformation validation, source-to-target checks, exception handling, and documentation practices for ETL workflows.'
-        },
-        {
-            id: 'etl-materials',
-            title: 'ETL Materials',
-            pillarId: 'etl',
-            description: 'Reference materials for ETL learning',
-            content: 'Reference guides, templates, mapping documents, and examples to support ETL learning and implementation.'
-        },
-        {
-            id: 'intro-val',
-            title: 'Validation Basics',
-            pillarId: 'validation',
-            description: 'Fundamentals of data validation',
-            content: 'Introduces the principles of validation, test planning, evidence collection, and acceptance criteria. Suitable for teams responsible for ensuring data quality and regulatory compliance.'
-        },
-        {
-            id: 'sop-val',
-            title: 'Validation SOPs',
-            pillarId: 'validation',
-            description: 'Standard Operating Procedures for Validation',
-            content: 'Provides step-by-step SOPs for planning, executing, documenting and closing validation activities. Includes templates for test cases and traceability documentation.'
-        },
-        {
-            id: 'validation-checklist',
-            title: 'Validation Checklist',
-            pillarId: 'validation',
-            description: 'Checklist for validation activities',
-            content: 'A practical checklist covering planning, risk assessment, test execution, evidence capture, deviation handling, and closure.'
-        },
-        {
-            id: 'validation-guide',
-            title: 'Validation Guide',
-            pillarId: 'validation',
-            description: 'Implementation guide for validation',
-            content: 'Detailed guidance for designing, executing, and documenting validation activities across business and technology processes.'
-        },
-        {
-            id: 'intro-btq',
-            title: 'BTQ Overview',
-            pillarId: 'btq',
-            description: 'Overview of Business Technology & Quality',
-            content: 'An overview of how business, technology and quality functions intersect to deliver reliable operations. Topics include governance, metrics, and cross-functional collaboration.'
-        },
-        {
-            id: 'sop-btq',
-            title: 'BTQ SOPs',
-            pillarId: 'btq',
-            description: 'Standard Operating Procedures for BTQ',
-            content: 'Practical SOPs for integrating technology and quality practices, including deployment readiness, change control and continuous improvement routines.'
-        },
-        {
-            id: 'quality-assurance',
-            title: 'Quality Assurance',
-            pillarId: 'btq',
-            description: 'Quality assurance practices for BTQ',
-            content: 'Covers QA practices, review checkpoints, quality metrics, governance mechanisms, and continuous improvement methods.'
-        },
-        {
-            id: 'technology-integration',
-            title: 'Technology Integration',
-            pillarId: 'btq',
-            description: 'Technology integration under BTQ',
-            content: 'Guidance on integrating technology with business and quality processes, including change management, readiness checks, and adoption planning.'
-        }
-    ]
-};
-
-const pillars = academyStore.pillars;
-let topics = academyStore.topics;
+const topics = [
+    { id: 'intro-ai', title: 'Intro to AI', pillarId: 'ai-ml-agents', description: 'Introduction to AI and Machine Learning concepts' },
+    { id: 'sop-ai', title: 'AI SOPs', pillarId: 'ai-ml-agents', description: 'Standard Operating Procedures for AI systems' },
+    { id: 'intro-etl', title: 'ETL Fundamentals', pillarId: 'etl', description: 'Understand the basics of ETL processes' },
+    { id: 'sop-etl', title: 'ETL SOPs', pillarId: 'etl', description: 'Standard Operating Procedures for ETL' },
+    { id: 'intro-val', title: 'Validation Basics', pillarId: 'validation', description: 'Fundamentals of data validation' },
+    { id: 'sop-val', title: 'Validation SOPs', pillarId: 'validation', description: 'Standard Operating Procedures for Validation' },
+    { id: 'intro-btq', title: 'BTQ Overview', pillarId: 'btq', description: 'Overview of Business Technology & Quality' },
+    { id: 'sop-btq', title: 'BTQ SOPs', pillarId: 'btq', description: 'Standard Operating Procedures for BTQ' }
+];
 
 // Static Chat Responses
 const chatResponses = {
-    model: 'Model Consulting covers AI, ML, model validation, model governance, and consulting support for intelligent enterprise solutions.',
-    ai: 'Model Consulting covers AI, ML, model validation, and intelligent enterprise solutions. Would you like to explore the related learning topics?',
-    etl: 'ETL is crucial for data management. This pillar covers extraction, transformation, and loading of data across enterprise systems.',
-    validation: 'Data validation ensures quality and integrity. Check out our Validation pillar for comprehensive guidance.',
-    btq: 'Business Technology & Quality helps transform operations. Explore our BTQ pillar for more information.',
-    learning: 'Welcome to Pfizer Learning Academy. We offer learning pillars and topics designed by subject matter experts.',
-    pillar: 'We have main business pillars such as Model Consulting, ETL, Validation, and BTQ. Would you like to learn more about any of them?',
-    topic: 'Each pillar contains multiple topics covering different aspects. You can explore them by clicking on any pillar card.',
-    help: 'I can help you explore our learning pillars and topics. Try asking about Model Consulting, ETL, Validation, or BTQ.',
-    default: 'That\'s an interesting question. I\'m your Pfizer Learning Assistant. Feel free to ask me about our learning pillars, topics, or how to get started.'
+    'ai': 'Great question! Our AI/ML & Agents pillar covers intelligent systems and agentic AI workflows. Would you like to explore the AI learning topics?',
+    'etl': 'ETL is crucial for data management! This pillar covers extraction, transformation, and loading of data across enterprise systems.',
+    'validation': 'Data validation ensures quality and integrity. Check out our Validation pillar for comprehensive guidance.',
+    'btq': 'Business Technology & Quality helps you transform operations. Explore our BTQ pillar for more information.',
+    'learning': 'Welcome to Pfizer Learning Academy! We offer 4 business pillars with 16 topics designed by subject matter experts.',
+    'pillar': 'We have 4 main business pillars: AI/ML & Agents, ETL, Validation, and BTQ. Would you like to learn more about any of them?',
+    'topic': 'Each pillar contains multiple topics covering different aspects. You can explore them by clicking on any pillar card.',
+    'help': 'I can help you explore our learning pillars and topics. Try asking about AI, ETL, Validation, or BTQ!',
+    'default': 'That\'s an interesting question! I\'m your Pfizer Learning Assistant. Feel free to ask me about our learning pillars, topics, or how to get started.'
 };
 
 // Initialize app
@@ -246,11 +125,13 @@ function renderPillars() {
     const grid = document.getElementById('pillarsGrid');
     grid.innerHTML = '';
 
+    // Render existing pillars
     pillars.forEach(pillar => {
         const card = createPillarCard(pillar);
         grid.appendChild(card);
     });
 
+    // Render add pillar card
     const addCard = createAddPillarCard();
     grid.appendChild(addCard);
 }
@@ -268,14 +149,10 @@ function createPillarCard(pillar) {
 
     const description = document.createElement('p');
     description.className = 'pillarCardDescription';
-    description.textContent = pillar.description || pillar.objective || '';
+    description.textContent = pillar.description;
 
     header.appendChild(title);
     header.appendChild(description);
-
-    const smeSection = document.createElement('div');
-    smeSection.className = 'pillarCardSME';
-    smeSection.innerHTML = `<small>SME: ${escapeHtml(pillar.smeName)}</small>`;
 
     const footer = document.createElement('div');
     footer.className = 'pillarCardFooter';
@@ -285,6 +162,10 @@ function createPillarCard(pillar) {
     arrow.textContent = '→';
 
     footer.appendChild(arrow);
+
+    const smeSection = document.createElement('div');
+    smeSection.className = 'pillarCardSME';
+    smeSection.innerHTML = `<small>SME: ${escapeHtml(pillar.smeName)}</small>`;
 
     card.appendChild(header);
     card.appendChild(smeSection);
@@ -323,117 +204,232 @@ function createAddPillarCard() {
     return card;
 }
 
+function dismissAddInfo() {
+    const addInfo = document.getElementById('addPillarInfo');
+    addInfo.style.display = 'none';
+}
+
 // Pillar Detail Page Functions
 let currentPillar = null;
 
 function showPillarDetail(pillar) {
     currentPillar = pillar;
-
-    const main = document.querySelector('.main');
-    if (main) main.style.display = 'none';
-
-    const itemDetailPage = document.getElementById('itemDetailPage');
-    if (itemDetailPage) {
-        itemDetailPage.style.display = 'none';
-
-        const itemTitleEl = document.getElementById('itemDetailTitle');
-        if (itemTitleEl) itemTitleEl.textContent = '';
-
-        const itemTitleHeading = document.getElementById('itemTitleHeading');
-        if (itemTitleHeading) itemTitleHeading.textContent = '';
-
-        const keyPointsList = document.getElementById('itemDetailKeyPoints');
-        if (keyPointsList) keyPointsList.innerHTML = '';
-
-        const contentPara = document.getElementById('contentParagraph');
-        if (contentPara) contentPara.textContent = '';
-    }
-
+    // Hide main content
+    document.querySelector('.main').style.display = 'none';
+    
+    // Show detail page
     const detailPage = document.getElementById('pillarDetailPage');
-    if (detailPage) detailPage.style.display = 'block';
+    detailPage.style.display = 'block';
 
+    // Populate detail content
     document.getElementById('detailPillarTitle').textContent = pillar.title;
+    // document.getElementById('detailObjective').textContent = pillar.objective;
+    // document.getElementById('detailDescription').textContent = pillar.description;
 
+    // Populate SME Card
     const smeCard = document.getElementById('detailSMECard');
     smeCard.innerHTML = `
         <div class="smeCardContent">
             <h3>Subject Matter Expert</h3>
             <p class="smeName">${escapeHtml(pillar.smeName)}</p>
             <p class="smeRole">${escapeHtml(pillar.smeRole)}</p>
-            <p class="smeEmail"><a href="mailto:${escapeAttribute(pillar.smeEmail)}">${escapeHtml(pillar.smeEmail)}</a></p>
+            <p class="smeEmail"><a href="mailto:${pillar.smeEmail}">${pillar.smeEmail}</a></p>
         </div>
     `;
 
+    // Populate Topics with clickable items
     const topicsList = document.getElementById('detailTopics');
-    const pillarTopics = topics.filter(t => t.pillarId === pillar.id);
 
-    topicsList.innerHTML = '';
+    topicsList.innerHTML = `
+        <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+        ">
+            <h2>Topics</h2>
 
-    pillarTopics.forEach((topic, idx) => {
-        const topicCard = document.createElement('div');
-        topicCard.className = 'topicCard';
-        topicCard.textContent = topic.title;
-        topicCard.addEventListener('click', () => showItemDetail('topic', topic.id, idx, topic.title));
-        topicsList.appendChild(topicCard);
-    });
+            <button
+               class="addTopicBtn"
+                onclick="openAddItemModal('topic')"
+            >
+            + Add Topic
+            </button>
+        </div>
 
+    <div class="topicsGrid">
+        ${pillar.topics.map((topic, idx) => {
+
+        const topicObj =
+            typeof topic === 'string'
+                ? {
+                    title: topic,
+                    description: 'Detailed SME-driven learning content',
+                    content: `Detailed content for ${topic}`
+                }
+                : topic;
+
+    return `
+        <div
+            class="topicCard"
+            onclick="showItemDetail(
+                'topic',
+                '${pillar.id}',
+                ${idx},
+                '${escapeHtml(topicObj.title)}'
+            )"
+        >
+            <h3>${escapeHtml(topicObj.title)}</h3>
+
+            <p>
+                ${topicObj.description}
+            </p>
+        </div>
+    `;
+}).join('')}
+    </div>
+`;
+
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goBackHome() {
+    // Hide detail page
     document.getElementById('pillarDetailPage').style.display = 'none';
+    
+    // Show main content
     document.querySelector('.main').style.display = 'block';
+    
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Item Detail Page Functions
 let itemDetailData = {
     type: null,
-    itemId: null,
+    pillarId: null,
     index: null,
     title: null
 };
 
-function showItemDetail(type, itemId, index, title) {
-    itemDetailData = { type, itemId, index, title };
-
-    const main = document.querySelector('.main');
-    if (main) main.style.display = 'none';
-
-    const pillarDetailPage = document.getElementById('pillarDetailPage');
-    if (pillarDetailPage) pillarDetailPage.style.display = 'none';
-
+function showItemDetail(type, pillarId, index, title) {
+    itemDetailData = { type, pillarId, index, title };
+    
+    // Hide pillar detail page
+    document.getElementById('pillarDetailPage').style.display = 'none';
+    
+    // Show item detail page
     const itemDetailPage = document.getElementById('itemDetailPage');
-    if (itemDetailPage) itemDetailPage.style.display = 'block';
+    itemDetailPage.style.display = 'block';
 
-    const itemDetailTitle = document.getElementById('itemDetailTitle');
-    if (itemDetailTitle) itemDetailTitle.textContent = title;
-
-    const itemTitleHeading = document.getElementById('itemTitleHeading');
-    if (itemTitleHeading) itemTitleHeading.textContent = title;
-
-    const keyPointsList = document.getElementById('itemDetailKeyPoints');
-    if (keyPointsList) keyPointsList.innerHTML = '';
-
-    const contentPara = document.getElementById('contentParagraph');
+    // Populate item detail
+    document.getElementById('itemDetailTitle').textContent = title;
+    
+    // Generate sample content based on type and title
+    const keyPoints = getItemKeyPoints(type, title);
+    let content = getItemContent(type, title);
 
     if (type === 'topic') {
-        const topic = topics.find(t => t.id === itemId);
 
-        if (topic && contentPara) {
-            contentPara.textContent = topic.content || topic.description || 'No content available';
-        } else if (contentPara) {
-            contentPara.textContent = 'Topic content not found';
+        const pillar = pillars.find(p => p.id === pillarId);
+
+        if (pillar && pillar.topics[index]) {
+
+            const topic = pillar.topics[index];
+
+            if (typeof topic === 'object') {
+
+                content = topic.content || content;
+            }
         }
     }
 
+    const keyPointsList = document.getElementById('itemDetailKeyPoints');
+    keyPointsList.innerHTML = `<p>${keyPoints.join(' ')}</p>`;
+
+    document.getElementById('contentParagraph').textContent = content;
+
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goBackToPillarDetail() {
+    // Hide item detail page
     document.getElementById('itemDetailPage').style.display = 'none';
+    
+    // Show pillar detail page
     document.getElementById('pillarDetailPage').style.display = 'block';
+    
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function getItemDescription(type, title) {
+    const descriptions = {
+        'topic': `${title} is a comprehensive learning module designed to build expertise in this area. This content covers fundamental concepts, best practices, and real-world applications.`,
+        'sop': `${title} outlines the standard procedures and guidelines for implementing this process. It provides step-by-step instructions, quality checkpoints, and compliance requirements.`,
+        'material': `${title} is a comprehensive resource document that contains detailed information, templates, checklists, and reference materials for this domain.`
+    };
+    return descriptions[type] || 'Detailed content for this item';
+}
+
+function getItemKeyPoints(type, title) {
+    const keyPoints = {
+        'topic': [
+            'Fundamental concepts and definitions',
+            'Industry best practices and standards',
+            'Practical implementation strategies',
+            'Common challenges and solutions',
+            'Performance metrics and KPIs'
+        ],
+        'sop': [
+            'Process overview and objectives',
+            'Stakeholder roles and responsibilities',
+            'Step-by-step procedure documentation',
+            'Quality assurance checkpoints',
+            'Exception handling and escalation paths'
+        ],
+        'material': [
+            'Executive summary and overview',
+            'Detailed reference materials',
+            'Templates and checklists',
+            'Case studies and examples',
+            'Supporting documentation and links'
+        ]
+    };
+    return keyPoints[type] || [];
+}
+
+function getItemContent(type, title) {
+    return `This is the detailed content for ${title}. In a real implementation, this would contain:\n\n1. Comprehensive overview of the topic/procedure/material\n2. Step-by-step instructions or guidance\n3. Important considerations and best practices\n4. Real-world examples and case studies\n5. Links to related resources and references\n6. Implementation timeline and milestones\n7. Success metrics and KPIs for tracking progress\n8. Support and escalation procedures`;
+}
+
+function getItemResources(type, title) {
+    const resources = {
+        'topic': [
+            'Video Tutorial: Getting Started with ' + title,
+            'Interactive Quiz: Test Your Knowledge',
+            'Case Study: Real-world Application',
+            'Reference Document: Complete Guide',
+            'FAQ: Frequently Asked Questions'
+        ],
+        'sop': [
+            'Process Flow Diagram',
+            'Step-by-step Procedure Document',
+            'Quality Checklist',
+            'Risk Assessment Matrix',
+            'Training Presentation'
+        ],
+        'material': [
+            'Implementation Handbook',
+            'Template Repository',
+            'Reference Guides',
+            'Training Slides',
+            'Video Demonstrations'
+        ]
+    };
+    return resources[type] || [];
 }
 
 // Add Item Modal Functions
@@ -443,70 +439,93 @@ function openAddItemModal(itemType) {
     const title = document.getElementById('addItemModalTitle');
 
     const typeLabels = {
-        topic: 'Add New Topic',
-        sop: 'Add New SOP',
-        material: 'Add New Material'
+        'topic': 'Add New Topic',
+        'sop': 'Add New SOP',
+        'material': 'Add New Material'
     };
 
     title.textContent = typeLabels[itemType] || 'Add New Item';
     modal.setAttribute('data-item-type', itemType);
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
     overlay.style.display = 'block';
 }
 
 function closeAddItemModal() {
     const modal = document.getElementById('addItemModal');
     const overlay = document.getElementById('modalOverlay');
-
     modal.style.display = 'none';
     overlay.style.display = 'none';
-
     document.getElementById('addItemForm').reset();
 }
 
 function submitAddItem(event) {
+
     event.preventDefault();
 
-    const modal = document.getElementById('addItemModal');
-    const itemType = modal.getAttribute('data-item-type');
+    const itemName =
+        document.getElementById('itemName').value.trim();
 
-    const itemName = document.getElementById('itemName').value.trim();
-    const description = document.getElementById('itemDescription').value.trim();
-    const content = document.getElementById('itemContent').value.trim();
+    const itemDescription =
+        document.getElementById('itemDescription').value.trim();
 
-    if (itemType === 'topic' && currentPillar) {
-        const newTopic = {
-            id: `${currentPillar.id}-${Date.now()}`,
-            title: itemName,
-            pillarId: currentPillar.id,
-            description: description,
-            content: content || description
-        };
+    const itemContent =
+        document.getElementById('itemContent').value.trim();
 
-        topics.push(newTopic);
-        academyStore.topics = topics;
+    if (!itemName || !itemDescription || !itemContent) {
 
-        showPillarDetail(currentPillar);
+        alert('Please fill all fields');
 
-        console.log('Copy this topic object into academyStore.topics to make it permanent:', JSON.stringify(newTopic, null, 4));
-
-        alert(
-            `✅ Topic Added Successfully!\n\n` +
-            `Title: ${itemName}\n` +
-            `Description: ${description}\n\n` +
-            `Note: This topic is added for the current session.\n` +
-            `To make it permanent, copy the generated object from the browser console into academyStore.topics.`
-        );
+        return;
     }
 
+    const itemType =
+        document.getElementById('addItemModal')
+        .getAttribute('data-item-type');
+
+    // CREATE TOPIC OBJECT
+    const newTopic = {
+
+        id: itemName
+            .toLowerCase()
+            .replace(/\s+/g, '-'),
+
+        title: itemName,
+
+        description: itemDescription,
+
+        content: itemContent
+    };
+
+    // ADD TO CURRENT PILLAR
+    if (itemType === 'topic') {
+
+        currentPillar.topics.push(newTopic);
+
+        topics.push({
+            id: newTopic.id,
+            title: newTopic.title,
+            pillarId: currentPillar.id,
+            description: newTopic.description,
+            content: newTopic.content
+        });
+    }
+
+    // CLOSE MODAL
     closeAddItemModal();
+
+    // RELOAD UI
+    showPillarDetail(currentPillar);
+
+    // SUCCESS
+    alert(`${itemName} created successfully.`);
 }
+
+    
 
 // Add Pillar Modal Functions
 function openAddPillarModal() {
     const modal = document.getElementById('addPillarModal');
     const overlay = document.getElementById('pillarModalOverlay');
-
     modal.style.display = 'block';
     overlay.style.display = 'block';
 }
@@ -514,191 +533,140 @@ function openAddPillarModal() {
 function closeAddPillarModal() {
     const modal = document.getElementById('addPillarModal');
     const overlay = document.getElementById('pillarModalOverlay');
-
     modal.style.display = 'none';
     overlay.style.display = 'none';
-
     document.getElementById('addPillarForm').reset();
 }
 
 function submitAddPillar(event) {
+
     event.preventDefault();
 
-    const pillarName = document.getElementById('pillarName').value.trim();
-    const smeName = document.getElementById('smeName').value.trim();
-    const smeRole = document.getElementById('smePosition').value.trim();
-    const smeEmail = document.getElementById('smeEmail').value.trim();
+    const pillarName =
+        document.getElementById('pillarName').value.trim();
 
-    if (!pillarName) {
-        alert('Please provide a name for the new pillar.');
+    const smeName =
+        document.getElementById('smeName').value.trim();
+
+    const smePosition =
+        document.getElementById('smePosition').value.trim();
+
+    const smeEmail =
+        document.getElementById('smeEmail').value.trim();
+
+    if (!pillarName || !smeName || !smePosition || !smeEmail) {
+
+        alert('Please fill all required fields');
+
         return;
     }
 
-    const baseId = pillarName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
-    let id = baseId || `pillar-${Date.now()}`;
-    let suffix = 1;
-
-    while (pillars.some(p => p.id === id)) {
-        id = `${baseId}-${suffix++}`;
-    }
-
+    // Generate pillar object
     const newPillar = {
-        id: id,
+
+        id: pillarName
+            .toLowerCase()
+            .replace(/\s+/g, '-'),
+
         title: pillarName,
-        description: '',
-        objective: '',
+
+        description:
+            `${pillarName} enterprise learning and capability pillar.`,
+
         smeName: smeName,
+
         smeEmail: smeEmail,
-        smeRole: smeRole,
+
+        smeRole: smePosition,
+
         topics: [],
+
         sops: [],
+
         materials: []
     };
 
+    // Push into main pillars array
     pillars.push(newPillar);
 
-    const starterTopics = [
-        {
-            id: `${id}-overview`,
-            title: `${pillarName} Overview`,
-            pillarId: id,
-            description: `Overview of ${pillarName}`,
-            content: `Overview and background information for ${pillarName}.`
-        },
-        {
-            id: `${id}-sop`,
-            title: `${pillarName} SOPs`,
-            pillarId: id,
-            description: `${pillarName} SOPs`,
-            content: `Standard operating procedures for ${pillarName}.`
-        },
-        {
-            id: `${id}-guide`,
-            title: `${pillarName} Guide`,
-            pillarId: id,
-            description: `${pillarName} Guide`,
-            content: `Practical implementation guide for ${pillarName}.`
-        },
-        {
-            id: `${id}-materials`,
-            title: `${pillarName} Materials`,
-            pillarId: id,
-            description: `${pillarName} Materials`,
-            content: `Reference materials and templates for ${pillarName}.`
-        }
-    ];
-
-    topics = topics.concat(starterTopics);
-    academyStore.topics = topics;
-
-    renderPillars();
+    // Close modal
     closeAddPillarModal();
 
-    console.log('Copy this pillar object into academyStore.pillars to make it permanent:', JSON.stringify(newPillar, null, 4));
-    console.log('Copy these starter topics into academyStore.topics to make them permanent:', JSON.stringify(starterTopics, null, 4));
+    // Re-render frontend cards
+    renderPillars();
 
-    alert(
-        `✅ Pillar "${pillarName}" created successfully.\n\n` +
-        `Note: This pillar is added for the current session.\n` +
-        `To make it permanent, copy the generated objects from the browser console into academyStore.`
-    );
+    // SUCCESS FEEDBACK
+    alert(`${pillarName} pillar created successfully.`);
 }
 
 // Search functionality
 function handleSearch(event) {
-    const query = (event.target.value || '').toLowerCase().trim();
+    const query = event.target.value.toLowerCase().trim();
     const searchResults = document.getElementById('searchResults');
 
-    if (!query) {
-        if (searchResults) searchResults.style.display = 'none';
+    if (query.length === 0) {
+        searchResults.style.display = 'none';
         return;
     }
 
+    // Search through pillars and topics
     const results = [
-        ...pillars.filter(p =>
-            (p.title || '').toLowerCase().includes(query) ||
-            (p.description || '').toLowerCase().includes(query) ||
-            (p.smeName || '').toLowerCase().includes(query)
+        ...pillars.filter(p => 
+            p.title.toLowerCase().includes(query) || 
+            p.description.toLowerCase().includes(query)
         ).map(p => ({
             type: 'pillar',
             title: p.title,
-            description: p.description || '',
+            description: p.description,
             id: p.id
         })),
-        ...topics.filter(t =>
-            (t.title || '').toLowerCase().includes(query) ||
-            (t.description || '').toLowerCase().includes(query)
+        ...topics.filter(t => 
+            t.title.toLowerCase().includes(query) || 
+            t.description.toLowerCase().includes(query)
         ).map(t => ({
             type: 'topic',
             title: t.title,
-            description: t.description || '',
+            description: t.description,
             id: t.id,
             pillarId: t.pillarId
         }))
     ];
 
-    if (!results.length) {
-        if (searchResults) searchResults.style.display = 'none';
+    if (results.length === 0) {
+        searchResults.style.display = 'none';
         return;
     }
 
-    searchResults.innerHTML = results.map(result => `
-        <div class="searchResult" onclick="handleResultClick('${escapeAttribute(result.type)}', '${escapeAttribute(result.id)}')">
+    searchResults.innerHTML = results.map((result, index) => `
+        <div class="searchResult" onclick="handleResultClick('${result.type}', '${result.id}')">
             <p class="searchResultTitle">${escapeHtml(result.title)}</p>
-            <span class="searchResultType">${escapeHtml(result.type)}</span>
+            <span class="searchResultType">${result.type}</span>
             <p class="searchResultDescription">${escapeHtml(result.description)}</p>
         </div>
     `).join('');
 
-    if (searchResults) searchResults.style.display = 'block';
+    searchResults.style.display = 'block';
 }
 
 function handleResultClick(type, id) {
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) searchInput.value = '';
-
-    const searchResults = document.getElementById('searchResults');
-    if (searchResults) searchResults.style.display = 'none';
-
-    if (type === 'pillar') {
-        const pillar = pillars.find(p => p.id === id);
-        if (pillar) {
-            showPillarDetail(pillar);
-            return;
-        }
-    }
-
-    if (type === 'topic') {
-        const topic = topics.find(t => t.id === id);
-        if (topic) {
-            const pillar = pillars.find(p => p.id === topic.pillarId);
-
-            if (pillar) {
-                showPillarDetail(pillar);
-                setTimeout(() => showItemDetail('topic', id, 0, topic.title), 150);
-                return;
-            }
-
-            showItemDetail('topic', id, 0, topic.title);
-        }
-    }
+    searchInput.value = '';
+    document.getElementById('searchResults').style.display = 'none';
+    alert(`You clicked on: ${type} - ${id}`);
 }
 
 // Chat functionality
 function openChat() {
     const chatInterface = document.getElementById('chatInterface');
     const searchContainer = document.querySelector('.searchContainer');
-
     chatInterface.style.display = 'block';
     searchContainer.style.display = 'none';
-
     document.getElementById('chatInputField').focus();
 }
 
 function closeChat() {
     const chatInterface = document.getElementById('chatInterface');
     const searchContainer = document.querySelector('.searchContainer');
-
     chatInterface.style.display = 'none';
     searchContainer.style.display = 'block';
 }
@@ -713,12 +681,15 @@ function sendChatMessage() {
     const inputField = document.getElementById('chatInputField');
     const message = inputField.value.trim();
 
-    if (!message) return;
+    if (message.length === 0) return;
 
+    // Add user message
     addChatMessage(message, 'user');
 
+    // Get bot response
     const response = getStaticResponse(message);
 
+    // Add bot response after a short delay
     setTimeout(() => {
         addChatMessage(response, 'bot');
     }, 500);
@@ -729,7 +700,6 @@ function sendChatMessage() {
 
 function addChatMessage(text, sender) {
     const messagesContainer = document.getElementById('chatMessages');
-
     const messageDiv = document.createElement('div');
     messageDiv.className = `chatMessage ${sender}`;
 
@@ -739,35 +709,28 @@ function addChatMessage(text, sender) {
     messageDiv.appendChild(p);
     messagesContainer.appendChild(messageDiv);
 
+    // Scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 function getStaticResponse(message) {
     const lowerMessage = message.toLowerCase();
 
+    // Check for keywords
     for (const [keyword, response] of Object.entries(chatResponses)) {
         if (lowerMessage.includes(keyword)) {
             return response;
         }
     }
 
-    return chatResponses.default;
+    return chatResponses['default'];
 }
 
 // Utility functions
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text || '';
+    div.textContent = text;
     return div.innerHTML;
-}
-
-function escapeAttribute(text) {
-    return String(text || '')
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
 }
 
 function scrollToSection(sectionId) {
@@ -782,27 +745,89 @@ function scrollToSection(sectionId) {
 }
 
 // Close search results when clicking outside
-document.addEventListener('click', e => {
+document.addEventListener('click', (e) => {
     const searchResults = document.getElementById('searchResults');
     const searchInput = document.getElementById('searchInput');
-
-    if (
-        searchResults &&
-        searchInput &&
-        !searchResults.contains(e.target) &&
-        !searchInput.contains(e.target)
-    ) {
+    
+    if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
         searchResults.style.display = 'none';
     }
 });
 
 // Close chat when pressing Escape
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const chatInterface = document.getElementById('chatInterface');
-
-        if (chatInterface && chatInterface.style.display === 'block') {
+        if (chatInterface.style.display === 'block') {
             closeChat();
         }
     }
 });
+
+function renderTopicsGrid(pillar) {
+    const topicsContainer = document.getElementById('topicsGridContainer');
+
+    if (!topicsContainer) return;
+
+    topicsContainer.innerHTML = '';
+
+    pillar.topics.forEach((topicName, index) => {
+        const card = document.createElement('div');
+        card.className = 'topicCard';
+
+        card.innerHTML = `
+            <h3>${topicName}</h3>
+            <p>
+                Detailed learning content and SME-driven material for ${topicName}.
+            </p>
+        `;
+
+        card.addEventListener('click', () => {
+            openTopicDetail(topicName, pillar.title, index);
+        });
+
+        topicsContainer.appendChild(card);
+    });
+}
+
+function openTopicDetail(topicName, pillarName, index) {
+    const detailContent = document.getElementById('detailContent');
+
+    detailContent.innerHTML = `
+        <div class="detailSection">
+            <button class="backBtn" onclick="showPillarDetail(currentPillar)">
+                ← Back
+            </button>
+
+            <h1>${topicName}</h1>
+
+            <p>
+                This is dynamically generated content for ${topicName} under ${pillarName}.
+                Each topic page now has separate rendered content.
+            </p>
+
+            <div class="detailCard">
+                <h3>Learning Objectives</h3>
+                <p>
+                    Topic ${index + 1} focuses on enterprise workflows,
+                    SOPs, automation and governance.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+function openAddItemModal(type) {
+
+    currentItemType = type;
+
+    document.getElementById('addItemModal').style.display = 'flex';
+    document.getElementById('modalOverlay').style.display = 'block';
+
+    document.getElementById('addItemModalTitle').textContent =
+        `Add New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemDescription').value = '';
+    document.getElementById('itemContent').value = '';
+}
