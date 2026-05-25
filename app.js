@@ -3,8 +3,8 @@ let currentItemType = '';
 const topicDetails = {};
 const pillars = [
     {
-        id: 'ai-ml-agents',
-        title: 'AI/ML & Agents',
+        id: 'model-consulting',
+        title: 'Model Consulting',
         //description: 'Build intelligent systems and agentic AI workflows for enterprise automation',
         //objective: 'Enable teams to understand and implement AI/ML solutions and agentic workflows for automating enterprise processes.',
         smeName: 'Avinash Kumar',
@@ -29,8 +29,8 @@ const pillars = [
         title: 'ETL',
         // description: 'Master data extraction, transformation, and loading across enterprise systems',
         // objective: 'Equip teams with skills to design, build, and maintain efficient ETL pipelines for enterprise data integration.',
-        smeName: 'Arjun Agarwal',
-        smeEmail: 'arjun.agarwal@pfizer.com',
+        smeName: 'Arun',
+        smeEmail: 'arun@pfizer.com',
         smeRole: 'Senior Risk Consulting',
         topics: ['ETL Fundamentals', 'ETL SOPs', 'ETL Validation', 'ETL Materials'],
         sops: [
@@ -659,7 +659,6 @@ function openChat() {
     const chatInterface = document.getElementById('chatInterface');
     const searchContainer = document.querySelector('.searchContainer');
     chatInterface.style.display = 'block';
-    searchContainer.style.display = 'none';
     document.getElementById('chatInputField').focus();
 }
 
@@ -732,6 +731,129 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// --- AI Assessment / Quiz Logic (client-side templated MCQs) ---
+let currentQuiz = [];
+let currentQuizIndex = 0;
+let currentScore = 0;
+
+function startAssessment() {
+    const topic = document.getElementById('assessmentTopicInput').value.trim();
+    if (!topic) {
+        alert('Please enter a topic for the assessment.');
+        return;
+    }
+
+    generateAssessment(topic);
+}
+
+function generateAssessment(topic) {
+    // For this demo we generate templated MCQs derived from the topic.
+    // Replace this with a server-side LLM call to generate real questions.
+    currentQuiz = [];
+    for (let i = 1; i <= 10; i++) {
+        const correct = `Correct statement about ${topic} (Answer ${i})`;
+        const wrong1 = `Incorrect option A for ${topic} (${i})`;
+        const wrong2 = `Incorrect option B for ${topic} (${i})`;
+        const wrong3 = `Incorrect option C for ${topic} (${i})`;
+
+        const options = [correct, wrong1, wrong2, wrong3];
+
+        // Shuffle options and track correct index
+        const shuffled = options
+            .map(v => ({ v, r: Math.random() }))
+            .sort((a, b) => a.r - b.r)
+            .map(x => x.v);
+
+        const correctIndex = shuffled.indexOf(correct);
+
+        currentQuiz.push({
+            question: `Question ${i}: Choose the most accurate statement about ${topic}.`,
+            options: shuffled,
+            correctIndex
+        });
+    }
+
+    currentQuizIndex = 0;
+    currentScore = 0;
+    renderQuiz();
+}
+
+function renderQuiz() {
+    const container = document.getElementById('assessmentContainer');
+    container.style.display = 'block';
+    renderQuestion(currentQuizIndex);
+}
+
+function renderQuestion(index) {
+    const q = currentQuiz[index];
+    const container = document.getElementById('assessmentContainer');
+
+    if (!q) return;
+
+    container.innerHTML = `
+        <div class="quizCard">
+            <h3>Question ${index + 1} of ${currentQuiz.length}</h3>
+            <p class="quizQuestion">${escapeHtml(q.question)}</p>
+            <div class="quizOptions">
+                ${q.options.map((opt, i) => `
+                    <label class="quizOption">
+                        <input type="radio" name="quizOption" value="${i}"> ${escapeHtml(opt)}
+                    </label>
+                `).join('')}
+            </div>
+            <div style="margin-top:12px;">
+                <button onclick="submitAnswer()">${index === currentQuiz.length - 1 ? 'Finish' : 'Next'}</button>
+                <button onclick="cancelAssessment()" style="margin-left:8px;">Cancel</button>
+            </div>
+        </div>
+    `;
+}
+
+function submitAnswer() {
+    const selected = document.querySelector('input[name="quizOption"]:checked');
+    if (!selected) {
+        alert('Please select an answer.');
+        return;
+    }
+
+    const choice = parseInt(selected.value, 10);
+    const q = currentQuiz[currentQuizIndex];
+    if (choice === q.correctIndex) currentScore++;
+
+    currentQuizIndex++;
+
+    if (currentQuizIndex >= currentQuiz.length) {
+        finishAssessment();
+    } else {
+        renderQuestion(currentQuizIndex);
+    }
+}
+
+function finishAssessment() {
+    const container = document.getElementById('assessmentContainer');
+    container.innerHTML = `
+        <div class="quizResults">
+            <h3>Assessment Complete</h3>
+            <p>Your score: <strong>${currentScore} / ${currentQuiz.length}</strong></p>
+            <div style="margin-top:12px;">
+                <button onclick="startAssessment()">Retake</button>
+                <button onclick="closeAssessment()" style="margin-left:8px;">Close</button>
+            </div>
+        </div>
+    `;
+}
+
+function cancelAssessment() {
+    if (!confirm('Cancel the assessment?')) return;
+    closeAssessment();
+}
+
+function closeAssessment() {
+    const container = document.getElementById('assessmentContainer');
+    container.style.display = 'none';
+    container.innerHTML = '';
+}
+
 function scrollToSection(sectionId) {
     if (sectionId === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -747,8 +869,8 @@ function scrollToSection(sectionId) {
 document.addEventListener('click', (e) => {
     const searchResults = document.getElementById('searchResults');
     const searchInput = document.getElementById('searchInput');
-    
-    if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
+
+    if (!searchResults.contains(e.target) && !(searchInput && searchInput.contains(e.target))) {
         searchResults.style.display = 'none';
     }
 });

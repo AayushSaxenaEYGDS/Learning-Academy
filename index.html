@@ -15,13 +15,12 @@
                 <nav class="nav">
                     <a href="#home" onclick="scrollToSection('home')">Home</a>
                     <a href="#pillars" onclick="scrollToSection('pillars')">Pillars</a>
-                    <a href="#topics">Topics</a>
+                    <a href="#searchInputWrapper" onclick="scrollToSection('Your AI Learning Partner')">AI Learning Partner</a>
                 </nav>
             </div>
 
             <div class="actions">
-                <input class="search" id="searchInput" placeholder="Search pillars and topics" onkeyup="handleSearch(event)">
-                
+                 
                 <div class="logosContainer">
                     <div class="brandLogo">
                         <div class="eyLogo">EY</div>
@@ -86,8 +85,8 @@
                     <p class="searchSubline flashAnimation">Your AI Learning Partner</p>
                 </div>
 
-                <!-- Chat Interface (Hidden by default) -->
-                <div id="chatInterface" class="chatInterface" style="display:none;">
+                <!-- Chat Interface (Visible by default; user can close) -->
+                <div id="chatInterface" class="chatInterface" style="display:block;">
                     <div class="chatHeader">
                         <h3>Pfizer Learning Assistant</h3>
                         <button class="closeChat" onclick="closeChat()">✕</button>
@@ -103,14 +102,14 @@
                     </div>
                 </div>
 
-                <!-- Search Bar with Static Response -->
-                <div class="searchContainer">
-                    <div class="searchInputWrapper" onclick="openChat()">
+                <!-- Search Bar (hidden while chat is open) -->
+                <div class="searchContainer" style="display:none;">
+                    <div class="searchInputWrapper">
                         <svg class="searchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
-                        <input type="text" class="searchInputStatic" placeholder="Ask me about learning topics... (Click to expand)" readonly>
+                        <input type="text" id="searchInput" class="searchInput" placeholder="Search topics..." onkeyup="handleSearch(event)">
                     </div>
                 </div>
 
@@ -129,6 +128,21 @@
                         <p>ℹ️ New pillar creation is coming soon. Contact your administrator to request new business pillars.</p>
                         <button onclick="dismissAddInfo()">Dismiss</button>
                     </div>
+                </section>
+
+                <!-- AI Assessment Section -->
+                <section id="aiAssessment" class="aiAssessment" style="margin-top:40px;">
+                    <div class="sectionHeader">
+                        <h2 class="sectionTitle">AI Assessment</h2>
+                        <p class="sectionSubtitle">Test your knowledge: generate a 10-question MCQ quiz for any topic.</p>
+                    </div>
+
+                    <div class="assessmentRow">
+                        <input type="text" id="assessmentTopicInput" placeholder="Enter a topic (e.g., ETL Fundamentals)" />
+                        <button onclick="startAssessment()">Start Assessment</button>
+                    </div>
+
+                    <div id="assessmentContainer" class="assessmentContainer" style="display:none; margin-top:20px;"></div>
                 </section>
             </div>
         </main>
