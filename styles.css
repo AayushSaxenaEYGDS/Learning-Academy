@@ -1267,3 +1267,42 @@ button {
         min-width: 100%;
     }
 }
+
+
+.assessmentSearchWrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255, 230, 0, 0.2);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-top: 24px;
+}
+
+.assessmentSearchInput {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+}
+
+.assessmentSearchInput::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.assessmentButtonRow {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#chatSearchContainer {
+    cursor: pointer;
+}
+
+#chatSearchContainer .searchInput {
+    cursor: pointer;
+}

@@ -116,9 +116,24 @@ const chatResponses = {
     'default': 'That\'s an interesting question! I\'m your Pfizer Learning Assistant. Feel free to ask me about our learning pillars, topics, or how to get started.'
 };
 
+
+function openChatFromSearch() {
+    document.getElementById('chatInterface').style.display = 'block';
+    document.getElementById('chatSearchContainer').style.display = 'none';
+    const input = document.getElementById('chatInputField');
+    if (input) {
+        setTimeout(() => input.focus(), 100);
+    }
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     renderPillars();
+
+    const aiPartnerSection = document.getElementById('aiLearningPartner');
+    if (window.location.hash === '#aiLearningPartner' && aiPartnerSection) {
+        aiPartnerSection.scrollIntoView({ behavior: 'smooth' });
+    }
 });
 
 // Render Pillar Cards
