@@ -867,26 +867,41 @@ function handleChatInput(event) {
     }
 }
 
-function sendChatMessage() {
+
+async function sendChatMessage() {
     const inputField = document.getElementById('chatInputField');
     const message = inputField.value.trim();
 
     if (message.length === 0) return;
 
-    // Add user message
     addChatMessage(message, 'user');
-
-    // Get bot response
-    const response = getStaticResponse(message);
-
-    // Add bot response after a short delay
-    setTimeout(() => {
-        addChatMessage(response, 'bot');
-    }, 500);
 
     inputField.value = '';
     inputField.focus();
+
+    try {
+
+        const response = await fetch(`${API_BASE}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        addChatMessage(data.message || 'No response received.', 'bot');
+
+    } catch (error) {
+
+        addChatMessage('Backend connection failed. Please ensure backend is running.', 'bot');
+
+    }
 }
+
 
 function addChatMessage(text, sender) {
     const messagesContainer = document.getElementById('chatMessages');
@@ -938,37 +953,61 @@ function startAssessment() {
     generateAssessment(topic);
 }
 
-function generateAssessment(topic) {
-    // For this demo we generate templated MCQs derived from the topic.
-    // Replace this with a server-side LLM call to generate real questions.
-    currentQuiz = [];
-    for (let i = 1; i <= 10; i++) {
-        const correct = `Correct statement about ${topic} (Answer ${i})`;
-        const wrong1 = `Incorrect option A for ${topic} (${i})`;
-        const wrong2 = `Incorrect option B for ${topic} (${i})`;
-        const wrong3 = `Incorrect option C for ${topic} (${i})`;
 
-        const options = [correct, wrong1, wrong2, wrong3];
+async function generateAssessment(topic) {
 
-        // Shuffle options and track correct index
-        const shuffled = options
-            .map(v => ({ v, r: Math.random() }))
-            .sort((a, b) => a.r - b.r)
-            .map(x => x.v);
+    const container = document.getElementById('assessmentContainer');
 
-        const correctIndex = shuffled.indexOf(correct);
+    container.style.display = 'block';
 
-        currentQuiz.push({
-            question: `Question ${i}: Choose the most accurate statement about ${topic}.`,
-            options: shuffled,
-            correctIndex
+    container.innerHTML = `
+        <div class="quizCard">
+            <h3>Generating AI Assessment...</h3>
+            <p>Please wait while AI creates questions.</p>
+        </div>
+    `;
+
+    try {
+
+        const response = await fetch(`${API_BASE}/assessment/generate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                topic: topic
+            })
         });
-    }
 
-    currentQuizIndex = 0;
-    currentScore = 0;
-    renderQuiz();
+        const data = await response.json();
+
+        console.log("Assessment API Response:", data); 
+        
+        if (!data.success || !Array.isArray(data.questions)) { 
+            throw new Error('Invalid assessment response'); }
+
+        currentQuiz = data.questions.map(q => ({
+            question: q.question,
+            options: q.options,
+            correctIndex: q.correct
+        }));
+
+        currentQuizIndex = 0;
+        currentScore = 0;
+
+        renderQuiz();
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="quizCard">
+                <h3>Assessment Failed</h3>
+                <p>Unable to generate AI assessment.</p>
+            </div>
+        `;
+    }
 }
+
 
 function renderQuiz() {
     const container = document.getElementById('assessmentContainer');
