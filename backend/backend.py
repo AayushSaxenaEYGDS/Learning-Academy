@@ -10,7 +10,6 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sympy import python
 
 try:
     from dotenv import load_dotenv
