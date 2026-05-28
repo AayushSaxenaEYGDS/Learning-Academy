@@ -133,7 +133,7 @@ const API_BASE = (function(){
     // If the frontend is already being served from the backend port, use relative paths
     if (location.hostname === '127.0.0.1' && (location.port === '8000' || location.port === '')) return '';
     // Default to backend on 127.0.0.1:8000 for local development
-    return 'http://127.0.0.1:8000';
+    return 'https://learning-academy-ve21.onrender.com';
 })();
 
 async function loadRemoteContent() {
