@@ -127,7 +127,159 @@ function openChatFromSearch() {
 }
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
+// Determine backend API base URL. Defaults to localhost:8000 but avoids double-prefix
+const API_BASE = (function(){
+    if (location.protocol === 'file:') return 'http://127.0.0.1:8000';
+    // If the frontend is already being served from the backend port, use relative paths
+    if (location.hostname === '127.0.0.1' && (location.port === '8000' || location.port === '')) return '';
+    // Default to backend on 127.0.0.1:8000 for local development
+    return 'http://127.0.0.1:8000';
+})();
+
+async function loadRemoteContent() {
+    try {
+        const res = await fetch(`${API_BASE}/api/content`);
+        if (!res.ok) throw new Error('Failed to fetch remote content');
+        const remote = await res.json();
+
+        // Merge remote pillars
+        if (Array.isArray(remote.pillars)) {
+            remote.pillars.forEach(rp => {
+                const existing = pillars.find(p => p.id === rp.id);
+                if (existing) {
+                    // merge topics into existing pillar (avoid duplicates)
+                    (rp.topics || []).forEach(rt => {
+                        const existsTopic = existing.topics.some(t => (typeof t === 'string' ? t === rt.title || t === rt : t.id === rt.id));
+                        if (!existsTopic) existing.topics.push(rt);
+                    });
+                } else {
+                    pillars.push(rp);
+                }
+            });
+        }
+
+        // Merge remote topics (global index)
+        if (Array.isArray(remote.topics)) {
+            remote.topics.forEach(rt => {
+                const exists = topics.some(t => t.id === rt.id || t.title === rt.title);
+                if (!exists) topics.push(rt);
+            });
+        }
+    } catch (err) {
+        // If backend unavailable, silently continue with local defaults
+        console.warn('Could not load remote content:', err);
+        showBackendWarning();
+    }
+}
+
+let backendAvailable = false;
+
+// Local fallback storage so the app works by opening index.html directly.
+const LOCAL_KEY = 'pla_local_content_v1';
+
+function loadLocalContent() {
+    try {
+        const raw = localStorage.getItem(LOCAL_KEY);
+        if (!raw) return { pillars: [], topics: [] };
+        return JSON.parse(raw);
+    } catch (e) {
+        console.warn('Failed to parse local content', e);
+        return { pillars: [], topics: [] };
+    }
+}
+
+function saveLocalContent(data) {
+    try {
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    } catch (e) {
+        console.warn('Failed to save local content', e);
+    }
+}
+
+async function syncLocalToBackend() {
+    if (!backendAvailable) return;
+    const local = loadLocalContent();
+    if ((!local.pillars || local.pillars.length === 0) && (!local.topics || local.topics.length === 0)) return;
+
+    // Try to push pillars first
+    const remaining = { pillars: [], topics: [] };
+    for (const p of local.pillars || []) {
+        try {
+            const res = await fetch(`${API_BASE}/api/add-pillar`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p)
+            });
+            if (!res.ok) {
+                remaining.pillars.push(p);
+            }
+        } catch (e) {
+            remaining.pillars.push(p);
+        }
+    }
+
+    // Then topics
+    for (const t of local.topics || []) {
+        try {
+            const res = await fetch(`${API_BASE}/api/add-topic`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(t)
+            });
+            if (!res.ok) {
+                remaining.topics.push(t);
+            }
+        } catch (e) {
+            remaining.topics.push(t);
+        }
+    }
+
+    saveLocalContent(remaining);
+    if ((remaining.pillars.length === 0) && (remaining.topics.length === 0)) {
+        // If everything synced, reload remote content to reflect authoritative state
+        await loadRemoteContent();
+        renderPillars();
+    }
+}
+
+async function checkBackendHealth() {
+    try {
+        const res = await fetch(`${API_BASE}/health`);
+        if (!res.ok) throw new Error('Health check failed');
+        const info = await res.json();
+        backendAvailable = true;
+        removeBackendWarning();
+        console.info('Backend health:', info);
+        return info;
+    } catch (err) {
+        backendAvailable = false;
+        console.warn('Backend health check failed:', err);
+        showBackendWarning();
+        return null;
+    }
+}
+
+function showBackendWarning() {
+    if (document.getElementById('backendWarning')) return;
+    const warn = document.createElement('div');
+    warn.id = 'backendWarning';
+    warn.style.position = 'fixed';
+    warn.style.top = '12px';
+    warn.style.right = '12px';
+    warn.style.background = '#f8d7da';
+    warn.style.color = '#721c24';
+    warn.style.border = '1px solid #f5c6cb';
+    warn.style.padding = '12px 16px';
+    warn.style.borderRadius = '6px';
+    warn.style.zIndex = 9999;
+    warn.textContent = 'Backend unreachable. Start the backend: python backend\\backend.py';
+    document.body.appendChild(warn);
+}
+
+function removeBackendWarning() {
+    const el = document.getElementById('backendWarning');
+    if (el) el.remove();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadRemoteContent();
+    await checkBackendHealth();
     renderPillars();
 
     const aiPartnerSection = document.getElementById('aiLearningPartner');
@@ -472,67 +624,79 @@ function closeAddItemModal() {
     document.getElementById('addItemForm').reset();
 }
 
-function submitAddItem(event) {
+async function submitAddItem(event) {
 
     event.preventDefault();
 
-    const itemName =
-        document.getElementById('itemName').value.trim();
-
-    const itemDescription =
-        document.getElementById('itemDescription').value.trim();
-
-    const itemContent =
-        document.getElementById('itemContent').value.trim();
+    const itemName = document.getElementById('itemName').value.trim();
+    const itemDescription = document.getElementById('itemDescription').value.trim();
+    const itemContent = document.getElementById('itemContent').value.trim();
 
     if (!itemName || !itemDescription || !itemContent) {
-
         alert('Please fill all fields');
-
         return;
     }
 
-    const itemType =
-        document.getElementById('addItemModal')
-        .getAttribute('data-item-type');
+    const itemType = document.getElementById('addItemModal').getAttribute('data-item-type');
 
-    // CREATE TOPIC OBJECT
-    const newTopic = {
-
-        id: itemName
-            .toLowerCase()
-            .replace(/\s+/g, '-'),
-
-        title: itemName,
-
-        description: itemDescription,
-
-        content: itemContent
-    };
-
-    // ADD TOPIC
     if (itemType === 'topic') {
+        if (!backendAvailable) {
+            // Save locally so the app works without a backend server
+            const local = loadLocalContent();
+            local.topics = local.topics || [];
+            local.topics.push(newTopic);
+            saveLocalContent(local);
 
-        // STORE FULL OBJECT
-        currentPillar.topics.push(newTopic);
-
-        // GLOBAL TOPICS ARRAY
-        topics.push({
-            id: newTopic.id,
-            title: newTopic.title,
+            // Update UI immediately
+            currentPillar.topics.push(newTopic);
+            topics.push({ id: newTopic.id, title: newTopic.title, pillarId: newTopic.pillarId, description: newTopic.description, content: newTopic.content });
+            closeAddItemModal();
+            showPillarDetail(currentPillar);
+            alert(`${itemName} created locally (no backend). It will sync when the backend is available.`);
+            return;
+        }
+        const newTopic = {
+            id: itemName.toLowerCase().replace(/\s+/g, '-'),
+            title: itemName,
             pillarId: currentPillar.id,
-            description: newTopic.description,
-            content: newTopic.content
-        });
+            description: itemDescription,
+            content: itemContent
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/api/add-topic`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newTopic)
+            });
+
+            if (!res.ok) {
+                let bodyText = '';
+                try {
+                    const json = await res.json();
+                    bodyText = json.error || JSON.stringify(json);
+                } catch (e) {
+                    bodyText = await res.text().catch(() => res.statusText || '');
+                }
+                console.error('Add-topic failed', res.status, bodyText);
+                alert(`Failed to save topic: ${res.status} ${bodyText}`);
+                return;
+            }
+
+            // Update UI after backend confirms; re-sync from backend
+            await loadRemoteContent();
+            closeAddItemModal();
+            // Find updated pillar reference
+            const updated = pillars.find(p => p.id === currentPillar.id) || currentPillar;
+            showPillarDetail(updated);
+            alert(`${itemName} created successfully.`);
+            // Attempt to sync any local content remaining
+            await syncLocalToBackend();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save topic to backend. See console for details.');
+        }
     }
-
-    // CLOSE MODAL
-    closeAddItemModal();
-
-    // RE-RENDER UPDATED PILLAR
-    showPillarDetail(currentPillar);
-
-    alert(`${itemName} created successfully.`);
 }
     
 
@@ -552,65 +716,78 @@ function closeAddPillarModal() {
     document.getElementById('addPillarForm').reset();
 }
 
-function submitAddPillar(event) {
+async function submitAddPillar(event) {
 
     event.preventDefault();
 
-    const pillarName =
-        document.getElementById('pillarName').value.trim();
-
-    const smeName =
-        document.getElementById('smeName').value.trim();
-
-    const smePosition =
-        document.getElementById('smePosition').value.trim();
-
-    const smeEmail =
-        document.getElementById('smeEmail').value.trim();
+    const pillarName = document.getElementById('pillarName').value.trim();
+    const smeName = document.getElementById('smeName').value.trim();
+    const smePosition = document.getElementById('smePosition').value.trim();
+    const smeEmail = document.getElementById('smeEmail').value.trim();
 
     if (!pillarName || !smeName || !smePosition || !smeEmail) {
-
         alert('Please fill all required fields');
-
         return;
     }
 
-    // Generate pillar object
     const newPillar = {
-
-        id: pillarName
-            .toLowerCase()
-            .replace(/\s+/g, '-'),
-
+        id: pillarName.toLowerCase().replace(/\s+/g, '-'),
         title: pillarName,
-
-        description:
-            `${pillarName} enterprise learning and capability pillar.`,
-
+        description: `${pillarName} enterprise learning and capability pillar.`,
         smeName: smeName,
-
         smeEmail: smeEmail,
-
         smeRole: smePosition,
-
         topics: [],
-
         sops: [],
-
         materials: []
     };
 
-    // Push into main pillars array
-    pillars.push(newPillar);
+    try {
+        if (!backendAvailable) {
+            // Save locally so the app works without a backend server
+            const local = loadLocalContent();
+            local.pillars = local.pillars || [];
+            local.pillars.push(newPillar);
+            saveLocalContent(local);
 
-    // Close modal
-    closeAddPillarModal();
+            // Update UI immediately
+            pillars.push(newPillar);
+            closeAddPillarModal();
+            renderPillars();
+            alert(`${pillarName} created locally (no backend). It will sync when the backend is available.`);
+            return;
+        }
 
-    // Re-render frontend cards
-    renderPillars();
+        const res = await fetch(`${API_BASE}/api/add-pillar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPillar)
+        });
 
-    // SUCCESS FEEDBACK
-    alert(`${pillarName} pillar created successfully.`);
+        if (!res.ok) {
+            let bodyText = '';
+            try {
+                const json = await res.json();
+                bodyText = json.error || JSON.stringify(json);
+            } catch (e) {
+                bodyText = await res.text().catch(() => res.statusText || '');
+            }
+            console.error('Add-pillar failed', res.status, bodyText);
+            alert(`Failed to save pillar: ${res.status} ${bodyText}`);
+            return;
+        }
+
+        // Re-sync from backend and re-render
+        await loadRemoteContent();
+        closeAddPillarModal();
+        renderPillars();
+        alert(`${pillarName} pillar created successfully.`);
+        // Attempt to sync any local content remaining
+        await syncLocalToBackend();
+    } catch (err) {
+        console.error(err);
+        alert('Failed to save pillar to backend. See console for details.');
+    }
 }
 
 // Search functionality
@@ -899,3 +1076,16 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// Merge any local content into in-memory arrays so UI reflects previously saved items
+const _local = loadLocalContent();
+if (_local && Array.isArray(_local.pillars)) {
+    _local.pillars.forEach(lp => {
+        if (!pillars.find(p => p.id === lp.id || p.title === lp.title)) pillars.push(lp);
+    });
+}
+if (_local && Array.isArray(_local.topics)) {
+    _local.topics.forEach(lt => {
+        if (!topics.find(t => t.id === lt.id || t.title === lt.title)) topics.push(lt);
+    });
+}

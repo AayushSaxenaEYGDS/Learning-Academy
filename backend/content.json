@@ -1,0 +1,27 @@
+{
+  "pillars": [
+    {
+      "id": "cli-test-3",
+      "title": "cli-test-3",
+      "description": "cli-test-3 enterprise learning and capability pillar.",
+      "smeName": "CLI",
+      "smeEmail": "cli3@test.com",
+      "smeRole": "Tester",
+      "topics": [],
+      "sops": [],
+      "materials": []
+    },
+    {
+      "id": "data-test",
+      "title": "Data test",
+      "description": "Data test enterprise learning and capability pillar.",
+      "smeName": "Test",
+      "smeEmail": "Test@test.com",
+      "smeRole": "Test",
+      "topics": [],
+      "sops": [],
+      "materials": []
+    }
+  ],
+  "topics": []
+}
