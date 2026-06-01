@@ -842,6 +842,17 @@ button {
     align-items: center;
     gap: 20px;
     margin-bottom: 30px;
+    justify-content:space-between;
+}
+
+.deleteBtn {
+    background:#ffe600;
+    color:black;
+    border:none;
+    padding:10px 16px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
 }
 
 .backButton {

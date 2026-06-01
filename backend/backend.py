@@ -257,3 +257,98 @@ def add_topic(req: TopicRequest):
     return {
         "success": True
     }
+
+
+##### Delete Pillar API
+@app.delete("/api/delete-pillar/{pillar_id}")
+def delete_pillar(pillar_id: str):
+
+    data = load_content()
+
+    pillar_exists = False
+
+    updated_pillars = []
+
+    for pillar in data["pillars"]:
+        if pillar["id"] == pillar_id:
+            pillar_exists = True
+        else:
+            updated_pillars.append(pillar)
+
+    if not pillar_exists:
+        raise HTTPException(
+            status_code=404,
+            detail="Pillar not found"
+        )
+
+    # remove pillar
+
+    data["pillars"] = updated_pillars
+
+    # remove all topics belonging to pillar
+
+    data["topics"] = [
+        topic
+        for topic in data["topics"]
+        if topic.get("pillarId") != pillar_id
+    ]
+
+    save_content(data)
+
+    return {
+        "success": True,
+        "message": "Pillar deleted"
+    }
+
+
+#### Delete Topic API
+@app.delete("/api/delete-topic/{topic_id}")
+def delete_topic(topic_id: str):
+
+    data = load_content()
+
+    topic_found = False
+    pillar_id = None
+
+    remaining_topics = []
+
+    for topic in data["topics"]:
+
+        if topic["id"] == topic_id:
+
+            topic_found = True
+            pillar_id = topic["pillarId"]
+
+        else:
+            remaining_topics.append(topic)
+
+    if not topic_found:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Topic not found"
+        )
+
+    data["topics"] = remaining_topics
+
+    # remove topic from pillar object
+
+    for pillar in data["pillars"]:
+
+        if pillar["id"] == pillar_id:
+
+            pillar["topics"] = [
+
+                t for t in pillar.get("topics", [])
+
+                if t["id"] != topic_id
+            ]
+
+            break
+
+    save_content(data)
+
+    return {
+        "success": True,
+        "message": "Topic deleted"
+    }

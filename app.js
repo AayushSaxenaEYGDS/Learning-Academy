@@ -379,6 +379,7 @@ function dismissAddInfo() {
 
 // Pillar Detail Page Functions
 let currentPillar = null;
+let currentTopic = null;
 
 function showPillarDetail(pillar) {
     currentPillar = pillar;
@@ -391,6 +392,15 @@ function showPillarDetail(pillar) {
 
     // Populate detail content
     document.getElementById('detailPillarTitle').textContent = pillar.title;
+
+    const deleteBtn = document.getElementById('deletePillarBtn');
+
+    if (deleteBtn) {
+
+        deleteBtn.style.display = 'block';
+
+        deleteBtn.onclick = () => {deletePillar(pillar.id);};
+    }
     
     // Populate SME Card
     const smeCard = document.getElementById('detailSMECard');
@@ -479,7 +489,8 @@ let itemDetailData = {
 
 function showItemDetail(type, pillarId, index, title) {
     itemDetailData = { type, pillarId, index, title };
-    
+    currentTopic = { type, pillarId, index, title };
+
     // Hide pillar detail page
     document.getElementById('pillarDetailPage').style.display = 'none';
     
@@ -489,6 +500,24 @@ function showItemDetail(type, pillarId, index, title) {
 
     // Populate item detail
     document.getElementById('itemDetailTitle').textContent = title;
+    const deleteTopicBtn = document.getElementById('deleteTopicBtn');
+
+    if (deleteTopicBtn) {
+        deleteTopicBtn.style.display = 'block';
+        deleteTopicBtn.onclick = () => {
+            const pillar = pillars.find(
+                p => p.id === pillarId
+            );
+
+            if (!pillar) return;
+
+            const topic = pillar.topics[index];
+
+            const topicId = typeof topic === 'object'? topic.id: title.toLowerCase().replace(/\s+/g, '-');
+
+            deleteTopic(topicId);
+        };
+    }
     
     // Generate sample content based on type and title
     const keyPoints = getItemKeyPoints(type, title);
@@ -875,12 +904,10 @@ async function sendChatMessage() {
     if (message.length === 0) return;
 
     addChatMessage(message, 'user');
-
     inputField.value = '';
     inputField.focus();
 
     try {
-
         const response = await fetch(`${API_BASE}/chat`, {
             method: 'POST',
             headers: {
@@ -892,13 +919,10 @@ async function sendChatMessage() {
         });
 
         const data = await response.json();
-
         addChatMessage(data.message || 'No response received.', 'bot');
 
     } catch (error) {
-
         addChatMessage('Backend connection failed. Please ensure backend is running.', 'bot');
-
     }
 }
 
@@ -936,6 +960,95 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+async function deletePillar(pillarId) {
+
+    if (!confirm('Delete this pillar and all topics?')) {
+        return;
+    }
+
+    try {
+        const response =
+            await fetch(
+                `${API_BASE}/api/delete-pillar/${pillarId}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        const index =
+            pillars.findIndex(
+                p => p.id === pillarId
+            );
+
+        if (index > -1) {
+            pillars.splice(index, 1);
+        }
+
+        goBackHome();
+        renderPillars();
+        alert('Pillar deleted');
+
+    } catch (error) {
+
+        console.error(error);
+        alert(
+            'Failed to delete pillar'
+        );
+    }
+}
+
+async function deleteTopic(topicId) {
+
+    if (!confirm('Delete this topic?')) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/delete-topic/${topicId}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        if (currentPillar) {
+
+            currentPillar.topics =
+                currentPillar.topics.filter(
+                    topic => {
+
+                        if (
+                            typeof topic === 'object'
+                        ) {
+                            return topic.id !== topicId;
+                        }
+
+                        return true;
+                    }
+                );
+        }
+
+        goBackToPillarDetail();
+        showPillarDetail(currentPillar);
+        alert('Topic deleted');} 
+    catch (error) {
+        console.error(error);
+        alert(
+            'Failed to delete topic'
+        );
+    }
 }
 
 // --- AI Assessment / Quiz Logic (client-side templated MCQs) ---
