@@ -36,6 +36,24 @@ class ChatRequest(BaseModel):
 class AssessmentRequest(BaseModel):
     topic: str
 
+class PillarRequest(BaseModel):
+    id: str
+    title: str
+    description: str
+    smeName: str
+    smeEmail: str
+    smeRole: str
+    topics: list = []
+    sops: list = []
+    materials: list = []
+
+
+class TopicRequest(BaseModel):
+    id: str
+    title: str
+    pillarId: str
+    description: str = ""
+
 def github_chat(messages):
 
     if not GITHUB_TOKEN:
@@ -89,6 +107,26 @@ def github_chat(messages):
 
         raise HTTPException(status_code=500, detail=str(e))
 
+CONTENT_FILE = os.path.join(
+    os.path.dirname(__file__),
+    "content.json"
+)
+
+def load_content():
+    if not os.path.exists(CONTENT_FILE):
+        return {
+            "pillars": [],
+            "topics": []
+        }
+
+    with open(CONTENT_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_content(data):
+    with open(CONTENT_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
 
 @app.get("/")
 def root():
@@ -98,9 +136,9 @@ def root():
 def health():
     return { "status": "healthy" }
 
-@app.get("/api/content") 
+@app.get("/api/content")
 def content():
-    return { "pillars": [], "topics": [] }
+    return load_content()
 
 @app.post("/chat")
 def chat(req: ChatRequest):
@@ -126,22 +164,22 @@ def chat(req: ChatRequest):
 def assessment(req: AssessmentRequest):
 
     prompt = f'''
-Generate exactly 10 MCQ questions on: {req.topic}
+        Generate exactly 10 MCQ questions on: {req.topic}
 
-Return ONLY valid JSON in this format:
+        Return ONLY valid JSON in this format:
 
-{{
-  "questions": [
-    {{
-      "question": "...",
-      "options": ["A","B","C","D"],
-      "correct": 0
-    }}
-  ]
-}}
+        {{
+            "questions": [
+            {{
+                "question": "...",
+                "options": ["A","B","C","D"],
+                "correct": 0
+            }}
+            ]
+        }}
 
-No markdown.
-'''
+        No markdown.
+        '''
 
     response = github_chat([
         {
@@ -167,4 +205,55 @@ No markdown.
     return {
         "success": True,
         "questions": data["questions"]
+    }
+
+###### Add Pillar Endpoint
+@app.post("/api/add-pillar")
+def add_pillar(req: PillarRequest):
+
+    data = load_content()
+
+    for pillar in data["pillars"]:
+        if pillar["id"] == req.id:
+            raise HTTPException(
+                status_code=400,
+                detail="Pillar already exists"
+            )
+
+    data["pillars"].append(req.dict())
+
+    save_content(data)
+
+    return {
+        "success": True
+    }
+
+###### Add Topic Endpoint
+@app.post("/api/add-topic")
+def add_topic(req: TopicRequest):
+
+    data = load_content()
+
+    topic = req.dict()
+
+    data["topics"].append(topic)
+
+    for pillar in data["pillars"]:
+
+        if pillar["id"] == req.pillarId:
+
+            pillar.setdefault("topics", [])
+
+            pillar["topics"].append({
+                "id": req.id,
+                "title": req.title,
+                "description": req.description
+            })
+
+            break
+
+    save_content(data)
+
+    return {
+        "success": True
     }
