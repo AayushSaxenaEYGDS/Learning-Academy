@@ -1,107 +1,9 @@
 // Data
 let currentItemType = '';
 const topicDetails = {};
-const pillars = [
-    {
-        id: 'model-consulting',
-        title: 'Model Consulting',
-        //description: 'Build intelligent systems and agentic AI workflows for enterprise automation',
-        //objective: 'Enable teams to understand and implement AI/ML solutions and agentic workflows for automating enterprise processes.',
-        smeName: 'Avinash Kumar',
-        smeEmail: 'avinash.kumar@pfizer.com',
-        smeRole: 'Senior Risk Consulting',
-        topics: ['Intro to AI', 'AI SOPs', 'AI Validation Checklist', 'AI Materials'],
-        sops: [
-            'SOP-001: AI Model Development Framework',
-            'SOP-002: Agent Workflow Configuration',
-            'SOP-003: Model Validation and Testing',
-            'SOP-004: Production Deployment Guidelines'
-        ],
-        materials: [
-            'AI Implementation Handbook',
-            'Agent Architecture Guide',
-            'Model Validation Checklist',
-            'Use Case Templates'
-        ]
-    },
-    {
-        id: 'etl',
-        title: 'ETL',
-        // description: 'Master data extraction, transformation, and loading across enterprise systems',
-        // objective: 'Equip teams with skills to design, build, and maintain efficient ETL pipelines for enterprise data integration.',
-        smeName: 'Arun',
-        smeEmail: 'arun@pfizer.com',
-        smeRole: 'Senior Risk Consulting',
-        topics: ['ETL Fundamentals', 'ETL SOPs', 'ETL Validation', 'ETL Materials'],
-        sops: [
-            'SOP-101: ETL Pipeline Design',
-            'SOP-102: Data Extraction Best Practices',
-            'SOP-103: Transformation Logic Implementation',
-            'SOP-104: Data Loading and Reconciliation'
-        ],
-        materials: [
-            'ETL Process Guide',
-            'Data Mapping Templates',
-            'Error Handling Procedures',
-            'Performance Optimization Guide'
-        ]
-    },
-    {
-        id: 'validation',
-        title: 'Validation',
-        // description: 'Ensure data quality, accuracy, and integrity throughout your workflows',
-        // objective: 'Establish consistent validation practices and ensure data quality across all enterprise systems and processes.',
-        smeName: 'Aayush Saxena',
-        smeEmail: 'aayush.saxena@pfizer.com',
-        smeRole: 'Senior Risk Consulting',
-        topics: ['Validation Basics', 'Validation SOPs', 'Validation Checklist', 'Validation Guide'],
-        sops: [
-            'SOP-201: Validation Planning and Strategy',
-            'SOP-202: Risk Assessment Framework',
-            'SOP-203: Test Execution and Documentation',
-            'SOP-204: Deviation Management and Closure'
-        ],
-        materials: [
-            'Validation Master Plan Template',
-            'Risk Assessment Matrix',
-            'Test Script Template',
-            'Evidence Collection Guide'
-        ]
-    },
-    {
-        id: 'btq',
-        title: 'BTQ',
-        //description: 'Business Technology & Quality - Transform operations with technology',
-        //objective: 'Integrate business processes with quality practices using modern technology solutions.',
-        smeName: 'Aniruddha Desai',
-        smeEmail: 'aniruddha.desai@pfizer.com',
-        smeRole: 'Operations & Technology Lead',
-        topics: ['BTQ Overview', 'BTQ SOPs', 'Quality Assurance', 'Technology Integration'],
-        sops: [
-            'SOP-301: Quality Process Design',
-            'SOP-302: Technology Integration Steps',
-            'SOP-303: Quality Monitoring and Metrics',
-            'SOP-304: Continuous Improvement Process'
-        ],
-        materials: [
-            'Quality Management System Guide',
-            'Process Improvement Toolkit',
-            'Metrics Dashboard Guide',
-            'Best Practices Compendium'
-        ]
-    }
-];
+let pillars = [];
 
-const topics = [
-    { id: 'intro-ai', title: 'Intro to AI', pillarId: 'ai-ml-agents', description: 'Introduction to AI and Machine Learning concepts' },
-    { id: 'sop-ai', title: 'AI SOPs', pillarId: 'ai-ml-agents', description: 'Standard Operating Procedures for AI systems' },
-    { id: 'intro-etl', title: 'ETL Fundamentals', pillarId: 'etl', description: 'Understand the basics of ETL processes' },
-    { id: 'sop-etl', title: 'ETL SOPs', pillarId: 'etl', description: 'Standard Operating Procedures for ETL' },
-    { id: 'intro-val', title: 'Validation Basics', pillarId: 'validation', description: 'Fundamentals of data validation' },
-    { id: 'sop-val', title: 'Validation SOPs', pillarId: 'validation', description: 'Standard Operating Procedures for Validation' },
-    { id: 'intro-btq', title: 'BTQ Overview', pillarId: 'btq', description: 'Overview of Business Technology & Quality' },
-    { id: 'sop-btq', title: 'BTQ SOPs', pillarId: 'btq', description: 'Standard Operating Procedures for BTQ' }
-];
+let topics = [];
 
 // Static Chat Responses
 const chatResponses = {
@@ -139,34 +41,22 @@ const API_BASE = (function(){
 async function loadRemoteContent() {
     try {
         const res = await fetch(`${API_BASE}/api/content`);
-        if (!res.ok) throw new Error('Failed to fetch remote content');
+
+        if (!res.ok) {
+            throw new Error('Failed to fetch remote content');
+        }
+
         const remote = await res.json();
 
-        // Merge remote pillars
-        if (Array.isArray(remote.pillars)) {
-            remote.pillars.forEach(rp => {
-                const existing = pillars.find(p => p.id === rp.id);
-                if (existing) {
-                    // merge topics into existing pillar (avoid duplicates)
-                    (rp.topics || []).forEach(rt => {
-                        const existsTopic = existing.topics.some(t => (typeof t === 'string' ? t === rt.title || t === rt : t.id === rt.id));
-                        if (!existsTopic) existing.topics.push(rt);
-                    });
-                } else {
-                    pillars.push(rp);
-                }
-            });
-        }
+        pillars = Array.isArray(remote.pillars)
+            ? [...remote.pillars]
+            : [];
 
-        // Merge remote topics (global index)
-        if (Array.isArray(remote.topics)) {
-            remote.topics.forEach(rt => {
-                const exists = topics.some(t => t.id === rt.id || t.title === rt.title);
-                if (!exists) topics.push(rt);
-            });
-        }
-    } catch (err) {
-        // If backend unavailable, silently continue with local defaults
+        topics = Array.isArray(remote.topics)
+            ? [...remote.topics]
+            : [];
+    }
+    catch (err) {
         console.warn('Could not load remote content:', err);
         showBackendWarning();
     }
