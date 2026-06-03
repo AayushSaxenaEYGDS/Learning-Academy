@@ -410,8 +410,8 @@ function showItemDetail(type, pillarId, index, title) {
     }
     
     // Generate sample content based on type and title
-    const keyPoints = getItemKeyPoints(type, title);
-    let content = getItemContent(type, title);
+    let keyPoints = [];
+    let content = '';
 
     if (type === 'topic') {
 
@@ -424,14 +424,26 @@ function showItemDetail(type, pillarId, index, title) {
 
         if (typeof topic === 'object') {
 
-            content = topic.content;
+            content = topic.content || '';
 
+            if (topic.keyPoints) {
+
+                keyPoints = Array.isArray(topic.keyPoints)
+                    ? topic.keyPoints
+                    : [topic.keyPoints];
+
+            }
         }
     }
 }
 
     const keyPointsList = document.getElementById('itemDetailKeyPoints');
-    keyPointsList.innerHTML = `<p>${keyPoints.join(' ')}</p>`;
+    const keyPointsSection = keyPointsList.closest('.detailCard');
+    if (keyPoints.length > 0) {
+        keyPointsSection.style.display = 'block';} 
+    else {
+        keyPointsSection.style.display = 'none';
+    }
 
     document.getElementById('contentParagraph').textContent = content;
 
