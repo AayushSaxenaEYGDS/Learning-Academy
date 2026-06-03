@@ -390,6 +390,7 @@ function showItemDetail(type, pillarId, index, title) {
 
     // Populate item detail
     document.getElementById('itemDetailTitle').textContent = title;
+    document.getElementById('itemDetailTopicName').textContent = title;
     const deleteTopicBtn = document.getElementById('deleteTopicBtn');
 
     if (deleteTopicBtn) {
@@ -423,16 +424,10 @@ function showItemDetail(type, pillarId, index, title) {
         const topic = pillar.topics[index];
 
         if (typeof topic === 'object') {
-
+            console.log("TOPIC OBJECT:",topic);
             content = topic.content || '';
-
             if (topic.keyPoints) {
-
-                keyPoints = Array.isArray(topic.keyPoints)
-                    ? topic.keyPoints
-                    : [topic.keyPoints];
-
-            }
+                keyPoints = Array.isArray(topic.keyPoints)? topic.keyPoints : [topic.keyPoints]; }
         }
     }
 }
@@ -445,7 +440,7 @@ function showItemDetail(type, pillarId, index, title) {
         keyPointsSection.style.display = 'none';
     }
 
-    document.getElementById('contentParagraph').textContent = content;
+    document.getElementById('contentParagraph').innerHTML =(content || '').replace(/\n/g, '<br>');
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
