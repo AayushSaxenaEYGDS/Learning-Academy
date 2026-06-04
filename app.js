@@ -154,6 +154,9 @@ function showBackendWarning() {
     warn.style.borderRadius = '6px';
     warn.style.zIndex = 9999;
     warn.textContent = 'Backend unreachable. Start the backend: python backend\\backend.py';
+    // Recommend uvicorn command for this project
+    // Update message to show proper command
+    warn.textContent = 'Backend unreachable. Start the backend: python -m uvicorn backend.backend:app --reload --port 8000';
     document.body.appendChild(warn);
 }
 
@@ -324,23 +327,20 @@ function showPillarDetail(pillar) {
     const topicObj =
         typeof topic === 'string'
         ? {
+            id: topic.toLowerCase().replace(/\s+/g, '-'),
             title: topic,
-            description: 'Detailed SME-driven learning content'
+            description: ''
         }
         : topic;
 
     return `
         <div
             class="topicCard"
-            onclick="showItemDetail(
-                'topic',
-                pillar.id,
-                topicObj.id
-            )"
+            onclick="showItemDetail('topic','${pillar.id}','${topicObj.id}')"
         >
-            <h3>${topicObj.title}</h3>
+            <h3>${escapeHtml(topicObj.title)}</h3>
 
-            <p>${topicObj.description}</p>
+            <p>${escapeHtml(topicObj.description || '')}</p>
         </div>
     `;
 
@@ -393,26 +393,41 @@ function showItemDetail(type, pillarId, topicId) {
     itemDetailPage.style.display = 'block';
 
     // Find topic from master topics array
-    const topicObj = topics.find(
-        t => t.id === topicId
-    );
+    let topicObj = topics.find(t => t.id === topicId);
+
+    // Fallback: try to find topic inside the pillar's topics array
+    if (!topicObj && pillarId) {
+        const pillar = pillars.find(p => p.id === pillarId);
+        if (pillar && Array.isArray(pillar.topics)) {
+            topicObj = pillar.topics.find(t => (typeof t === 'object' ? t.id : null) === topicId);
+        }
+    }
+
+    // Fallback: try localStorage saved topics
+    if (!topicObj) {
+        try {
+            const local = loadLocalContent();
+            if (local && Array.isArray(local.topics)) {
+                topicObj = local.topics.find(t => t.id === topicId);
+            }
+        } catch (e) {
+            console.warn('Failed to read local topics', e);
+        }
+    }
 
     if (!topicObj) {
         alert("Topic not found");
         return;
     }
 
-    // Populate title
-    document.getElementById('itemDetailTitle').textContent =
-        topicObj.title;
+    // Populate title (show topic title once)
+    document.getElementById('itemDetailTitle').textContent = topicObj.title;
 
-    document.getElementById('itemDetailTopicName').textContent =
-        topicObj.title;
+    // Show short description under the Title heading (if provided)
+    document.getElementById('itemDetailTopicName').textContent = topicObj.description || '';
 
-    // Populate content
-    document.getElementById('contentParagraph').innerHTML =
-        (topicObj.content || '')
-            .replace(/\n/g, '<br>');
+    // Populate content area with the detailed content only (no <br> inserts)
+    document.getElementById('contentParagraph').textContent = topicObj.content || '';
 
     // Hide key points section for now
     const keyPointsList =
@@ -574,18 +589,7 @@ async function submitAddItem(event) {
         };
 
         if (!backendAvailable) {
-            // Save locally so the app works without a backend server
-            const local = loadLocalContent();
-            local.topics = local.topics || [];
-            local.topics.push(newTopic);
-            saveLocalContent(local);
-
-            // Update UI immediately
-            currentPillar.topics.push(newTopic);
-            topics.push({ id: newTopic.id, title: newTopic.title, pillarId: newTopic.pillarId, description: newTopic.description, content: newTopic.content });
-            closeAddItemModal();
-            showPillarDetail(currentPillar);
-            alert(`${itemName} created locally (no backend). It will sync when the backend is available.`);
+            alert('Backend unreachable. Start the backend to add topics (no local storage will be used).');
             return;
         }
 
@@ -671,17 +675,7 @@ async function submitAddPillar(event) {
 
     try {
         if (!backendAvailable) {
-            // Save locally so the app works without a backend server
-            const local = loadLocalContent();
-            local.pillars = local.pillars || [];
-            local.pillars.push(newPillar);
-            saveLocalContent(local);
-
-            // Update UI immediately
-            pillars.push(newPillar);
-            closeAddPillarModal();
-            renderPillars();
-            alert(`${pillarName} created locally (no backend). It will sync when the backend is available.`);
+            alert('Backend unreachable. Start the backend to add pillars (no local storage will be used).');
             return;
         }
 
@@ -883,18 +877,8 @@ async function deletePillar(pillarId) {
         }
     }
 
-    // Local fallback: remove from in-memory and localStorage
-    const index = pillars.findIndex(p => p.id === pillarId);
-    if (index > -1) pillars.splice(index, 1);
-
-    const local = loadLocalContent();
-    local.pillars = (local.pillars || []).filter(p => p.id !== pillarId);
-    local.topics = (local.topics || []).filter(t => t.pillarId !== pillarId);
-    saveLocalContent(local);
-
-    goBackHome();
-    renderPillars();
-    alert('Pillar deleted (local)');
+    alert('Backend unreachable. Start the backend to delete pillars. No local fallback is used.');
+    return;
 }
 
 async function deleteTopic(topicId) {
@@ -926,21 +910,8 @@ async function deleteTopic(topicId) {
         }
     }
 
-    // Local fallback
-    if (currentPillar) {
-        currentPillar.topics = currentPillar.topics.filter(topic => {
-            if (typeof topic === 'object') return topic.id !== topicId;
-            return true;
-        });
-    }
-
-    const local = loadLocalContent();
-    local.topics = (local.topics || []).filter(t => t.id !== topicId);
-    saveLocalContent(local);
-
-    goBackToPillarDetail();
-    showPillarDetail(currentPillar);
-    alert('Topic deleted (local)');
+    alert('Backend unreachable. Start the backend to delete topics. No local fallback is used.');
+    return;
 }
 
 // --- AI Assessment / Quiz Logic (client-side templated MCQs) ---
@@ -1122,15 +1093,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Merge any local content into in-memory arrays so UI reflects previously saved items
-const _local = loadLocalContent();
-if (_local && Array.isArray(_local.pillars)) {
-    _local.pillars.forEach(lp => {
-        if (!pillars.find(p => p.id === lp.id || p.title === lp.title)) pillars.push(lp);
-    });
-}
-if (_local && Array.isArray(_local.topics)) {
-    _local.topics.forEach(lt => {
-        if (!topics.find(t => t.id === lt.id || t.title === lt.title)) topics.push(lt);
-    });
-}
+// Note: localStorage fallbacks removed. UI relies on backend `content.json`.

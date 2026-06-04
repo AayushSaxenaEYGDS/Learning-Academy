@@ -11,7 +11,7 @@ $Python = "$VENV\\Scripts\\python.exe"
 & $Python -m pip install -r "$PSScriptRoot\\requirements.txt"
 
 Write-Host "Starting backend (FastAPI) in new window..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command`, \"$Python '$PSScriptRoot\\backend\\backend.py'\""
+Start-Process powershell -ArgumentList "-NoExit", "-Command`, \"$Python -m uvicorn backend.backend:app --reload --port 8000\""
 
 Write-Host "Starting static file server (http.server) in new window on port 5500..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command`, \"$Python -m http.server 5500 --directory '$PSScriptRoot'\""
