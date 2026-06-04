@@ -429,8 +429,16 @@ function showItemDetail(type, pillarId, topicId) {
     // Show short description under the Title heading (if provided)
     document.getElementById('itemDetailTopicName').textContent = topicObj.description || '';
 
-    // Populate content area with the detailed content only (no <br> inserts)
-    document.getElementById('contentParagraph').textContent = topicObj.content || '';
+    // Populate content area with the detailed content if present,
+    // otherwise fall back to description. If both exist, show content first then description.
+    const contentEl = document.getElementById('contentParagraph');
+    const parts = [];
+    if (topicObj.content && topicObj.content.trim().length > 0) parts.push(topicObj.content.trim());
+    if (topicObj.description && topicObj.description.trim().length > 0) {
+        // Only add description if it's different from content
+        if (parts.length === 0 || topicObj.description.trim() !== parts[0]) parts.push(topicObj.description.trim());
+    }
+    contentEl.textContent = parts.join('\n\n');
 
     // Hide key points section for now
     const keyPointsList =
