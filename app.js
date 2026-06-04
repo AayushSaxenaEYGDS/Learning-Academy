@@ -415,22 +415,18 @@ function showItemDetail(type, pillarId, index, title) {
     let content = '';
 
     if (type === 'topic') {
+        const topicObj = topics.find(t => t.id === title.toLowerCase().replace(/\s+/g, '-'));
+        console.log("GLOBAL TOPIC:",topicObj);
 
-    const pillar =
-        pillars.find(p => p.id === pillarId);
-
-    if (pillar && pillar.topics[index]) {
-
-        const topic = pillar.topics[index];
-
-        if (typeof topic === 'object') {
-            console.log("TOPIC OBJECT:",topic);
-            content = topic.content || '';
-            if (topic.keyPoints) {
-                keyPoints = Array.isArray(topic.keyPoints)? topic.keyPoints : [topic.keyPoints]; }
+        if (topicObj) {
+            content = topicObj.content || '';
+            if (topicObj.keyPoints) {
+                keyPoints = Array.isArray(topicObj.keyPoints)
+                ? topicObj.keyPoints
+                : [topicObj.keyPoints];
+            }
         }
     }
-}
 
     const keyPointsList = document.getElementById('itemDetailKeyPoints');
     const keyPointsSection = keyPointsList.parentElement;
@@ -611,6 +607,7 @@ async function submitAddItem(event) {
 
             // Update UI after backend confirms; re-sync from backend
             await loadRemoteContent();
+            console.log('REMOTE TOPICS',topics);
             closeAddItemModal();
             // Find updated pillar reference
             const updated = pillars.find(p => p.id === currentPillar.id) || currentPillar;
