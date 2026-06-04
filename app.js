@@ -48,15 +48,10 @@ async function loadRemoteContent() {
 
         const remote = await res.json();
 
-        pillars = Array.isArray(remote.pillars)
-            ? [...remote.pillars]
-            : [];
+        pillars = Array.isArray(remote.pillars) ? remote.pillars : [];
+        topics = Array.isArray(remote.topics) ? remote.topics : [];
 
-        topics = Array.isArray(remote.topics)
-            ? [...remote.topics]
-            : [];
-    }
-    catch (err) {
+    } catch (err) {
         console.warn('Could not load remote content:', err);
         showBackendWarning();
     }
@@ -563,6 +558,14 @@ async function submitAddItem(event) {
     const itemType = document.getElementById('addItemModal').getAttribute('data-item-type');
 
     if (itemType === 'topic') {
+        const newTopic = {
+            id: itemName.toLowerCase().replace(/\s+/g, '-'),
+            title: itemName,
+            pillarId: currentPillar.id,
+            description: itemDescription,
+            content: itemContent
+        };
+
         if (!backendAvailable) {
             // Save locally so the app works without a backend server
             const local = loadLocalContent();
@@ -578,13 +581,6 @@ async function submitAddItem(event) {
             alert(`${itemName} created locally (no backend). It will sync when the backend is available.`);
             return;
         }
-        const newTopic = {
-            id: itemName.toLowerCase().replace(/\s+/g, '-'),
-            title: itemName,
-            pillarId: currentPillar.id,
-            description: itemDescription,
-            content: itemContent
-        };
 
         try {
             const res = await fetch(`${API_BASE}/api/add-topic`, {
@@ -862,40 +858,36 @@ async function deletePillar(pillarId) {
     if (!confirm('Delete this pillar and all topics?')) {
         return;
     }
-
-    try {
-        const response =
-            await fetch(
-                `${API_BASE}/api/delete-pillar/${pillarId}`,
-                {
-                    method: 'DELETE'
-                }
-            );
-
-        if (!response.ok) {
-            throw new Error();
+    // If backend is available try remote delete, otherwise delete locally
+    if (backendAvailable) {
+        try {
+            const response = await fetch(`${API_BASE}/api/delete-pillar/${pillarId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error();
+            const index = pillars.findIndex(p => p.id === pillarId);
+            if (index > -1) pillars.splice(index, 1);
+            goBackHome();
+            renderPillars();
+            alert('Pillar deleted');
+            return;
+        } catch (error) {
+            console.error(error);
+            alert('Failed to delete pillar');
+            return;
         }
-
-        const index =
-            pillars.findIndex(
-                p => p.id === pillarId
-            );
-
-        if (index > -1) {
-            pillars.splice(index, 1);
-        }
-
-        goBackHome();
-        renderPillars();
-        alert('Pillar deleted');
-
-    } catch (error) {
-
-        console.error(error);
-        alert(
-            'Failed to delete pillar'
-        );
     }
+
+    // Local fallback: remove from in-memory and localStorage
+    const index = pillars.findIndex(p => p.id === pillarId);
+    if (index > -1) pillars.splice(index, 1);
+
+    const local = loadLocalContent();
+    local.pillars = (local.pillars || []).filter(p => p.id !== pillarId);
+    local.topics = (local.topics || []).filter(t => t.pillarId !== pillarId);
+    saveLocalContent(local);
+
+    goBackHome();
+    renderPillars();
+    alert('Pillar deleted (local)');
 }
 
 async function deleteTopic(topicId) {
@@ -903,47 +895,45 @@ async function deleteTopic(topicId) {
     if (!confirm('Delete this topic?')) {
         return;
     }
+    // If backend is available, call API; otherwise perform local deletion
+    if (backendAvailable) {
+        try {
+            const response = await fetch(`${API_BASE}/api/delete-topic/${topicId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error();
 
-    try {
+            if (currentPillar) {
+                currentPillar.topics = currentPillar.topics.filter(topic => {
+                    if (typeof topic === 'object') return topic.id !== topicId;
+                    return true;
+                });
+            }
 
-        const response =
-            await fetch(
-                `${API_BASE}/api/delete-topic/${topicId}`,
-                {
-                    method: 'DELETE'
-                }
-            );
-
-        if (!response.ok) {
-            throw new Error();
+            goBackToPillarDetail();
+            showPillarDetail(currentPillar);
+            alert('Topic deleted');
+            return;
+        } catch (error) {
+            console.error(error);
+            alert('Failed to delete topic');
+            return;
         }
-
-        if (currentPillar) {
-
-            currentPillar.topics =
-                currentPillar.topics.filter(
-                    topic => {
-
-                        if (
-                            typeof topic === 'object'
-                        ) {
-                            return topic.id !== topicId;
-                        }
-
-                        return true;
-                    }
-                );
-        }
-
-        goBackToPillarDetail();
-        showPillarDetail(currentPillar);
-        alert('Topic deleted');} 
-    catch (error) {
-        console.error(error);
-        alert(
-            'Failed to delete topic'
-        );
     }
+
+    // Local fallback
+    if (currentPillar) {
+        currentPillar.topics = currentPillar.topics.filter(topic => {
+            if (typeof topic === 'object') return topic.id !== topicId;
+            return true;
+        });
+    }
+
+    const local = loadLocalContent();
+    local.topics = (local.topics || []).filter(t => t.id !== topicId);
+    saveLocalContent(local);
+
+    goBackToPillarDetail();
+    showPillarDetail(currentPillar);
+    alert('Topic deleted (local)');
 }
 
 // --- AI Assessment / Quiz Logic (client-side templated MCQs) ---
@@ -1010,6 +1000,7 @@ async function generateAssessment(topic) {
         container.innerHTML = `
             <div class="quizCard">
                 <h3>Assessment Failed</h3>
+
                 <p>Unable to generate AI assessment.</p>
             </div>
         `;
