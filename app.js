@@ -396,9 +396,7 @@ function showItemDetail(type, pillarId, index, title) {
     if (deleteTopicBtn) {
         deleteTopicBtn.style.display = 'block';
         deleteTopicBtn.onclick = () => {
-            const pillar = pillars.find(
-                p => p.id === pillarId
-            );
+            const pillar = pillars.find(p => p.id === pillarId);
 
             if (!pillar) return;
 
@@ -417,6 +415,9 @@ function showItemDetail(type, pillarId, index, title) {
     if (type === 'topic') {
         const topicObj = topics.find(t => t.id === title.toLowerCase().replace(/\s+/g, '-'));
         console.log("GLOBAL TOPIC:",topicObj);
+        console.log("ALL TOPICS:", topics);
+        console.log("TITLE:", title);
+        console.log("GENERATED ID:",title.toLowerCase().replace(/\s+/g, '-'));
 
         if (topicObj) {
             content = topicObj.content || '';
