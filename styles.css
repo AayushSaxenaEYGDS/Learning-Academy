@@ -807,6 +807,7 @@ button {
 
 .contentParagraph {
     white-space: pre-wrap;
+    color: var(--white);
 }
 
 .topicItem, .sopItem, .materialItem {

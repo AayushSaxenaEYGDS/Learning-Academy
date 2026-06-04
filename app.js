@@ -440,15 +440,10 @@ function showItemDetail(type, pillarId, topicId) {
     }
     contentEl.textContent = parts.join('\n\n');
 
-    // Hide key points section for now
-    const keyPointsList =
-        document.getElementById('itemDetailKeyPoints');
-
+    // Hide key points list only (keep the Content section visible)
+    const keyPointsList = document.getElementById('itemDetailKeyPoints');
     if (keyPointsList) {
-        const keyPointsSection =
-            keyPointsList.parentElement;
-
-        keyPointsSection.style.display = 'none';
+        keyPointsList.style.display = 'none';
     }
 
     // Delete button
