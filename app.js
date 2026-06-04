@@ -420,6 +420,9 @@ function showItemDetail(type, pillarId, topicId) {
         return;
     }
 
+    // Debug: log the topic object to ensure fields exist
+    console.log('Opening topic detail for', topicId, 'resolved object:', topicObj);
+
     // Populate title (show topic title once)
     document.getElementById('itemDetailTitle').textContent = topicObj.title;
 
@@ -600,29 +603,26 @@ async function submitAddItem(event) {
                 body: JSON.stringify(newTopic)
             });
 
+            let resBody = null;
+            try { resBody = await res.json(); } catch(e) { resBody = await res.text().catch(() => null); }
+
             if (!res.ok) {
-                let bodyText = '';
-                try {
-                    const json = await res.json();
-                    bodyText = json.error || JSON.stringify(json);
-                } catch (e) {
-                    bodyText = await res.text().catch(() => res.statusText || '');
-                }
-                console.error('Add-topic failed', res.status, bodyText);
-                alert(`Failed to save topic: ${res.status} ${bodyText}`);
+                console.error('Add-topic failed', res.status, resBody);
+                alert(`Failed to save topic: ${res.status} ${typeof resBody === 'string' ? resBody : JSON.stringify(resBody)}`);
                 return;
             }
 
+            console.log('Add-topic response:', resBody);
+
             // Update UI after backend confirms; re-sync from backend
             await loadRemoteContent();
-            console.log('REMOTE TOPICS',topics);
+            console.log('REMOTE TOPICS (after sync):', topics);
             closeAddItemModal();
+
             // Find updated pillar reference
             const updated = pillars.find(p => p.id === currentPillar.id) || currentPillar;
             showPillarDetail(updated);
             alert(`${itemName} created successfully.`);
-            // Attempt to sync any local content remaining
-            await syncLocalToBackend();
         } catch (err) {
             console.error(err);
             alert('Failed to save topic to backend. See console for details.');
