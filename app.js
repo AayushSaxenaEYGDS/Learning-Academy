@@ -334,9 +334,8 @@ function showPillarDetail(pillar) {
             class="topicCard"
             onclick="showItemDetail(
                 'topic',
-                '${pillar.id}',
-                ${idx},
-                '${topicObj.title}'
+                pillar.id,
+                topicObj.id
             )"
         >
             <h3>${topicObj.title}</h3>
@@ -372,70 +371,78 @@ let itemDetailData = {
     title: null
 };
 
-function showItemDetail(type, pillarId, index, title) {
-    itemDetailData = { type, pillarId, index, title };
-    currentTopic = { type, pillarId, index, title };
+function showItemDetail(type, pillarId, topicId) {
+
+    itemDetailData = {
+        type,
+        pillarId,
+        topicId
+    };
+
+    currentTopic = {
+        type,
+        pillarId,
+        topicId
+    };
 
     // Hide pillar detail page
     document.getElementById('pillarDetailPage').style.display = 'none';
-    
+
     // Show item detail page
     const itemDetailPage = document.getElementById('itemDetailPage');
     itemDetailPage.style.display = 'block';
 
-    // Populate item detail
-    document.getElementById('itemDetailTitle').textContent = title;
-    document.getElementById('itemDetailTopicName').textContent = title;
-    const deleteTopicBtn = document.getElementById('deleteTopicBtn');
+    // Find topic from master topics array
+    const topicObj = topics.find(
+        t => t.id === topicId
+    );
 
-    if (deleteTopicBtn) {
-        deleteTopicBtn.style.display = 'block';
-        deleteTopicBtn.onclick = () => {
-            const pillar = pillars.find(p => p.id === pillarId);
-
-            if (!pillar) return;
-
-            const topic = pillar.topics[index];
-
-            const topicId = typeof topic === 'object'? topic.id: title.toLowerCase().replace(/\s+/g, '-');
-
-            deleteTopic(topicId);
-        };
-    }
-    
-    // Generate sample content based on type and title
-    let keyPoints = [];
-    let content = '';
-
-    if (type === 'topic') {
-        const topicObj = topics.find(t => t.id === title.toLowerCase().replace(/\s+/g, '-'));
-        console.log("GLOBAL TOPIC:",topicObj);
-        console.log("ALL TOPICS:", topics);
-        console.log("TITLE:", title);
-        console.log("GENERATED ID:",title.toLowerCase().replace(/\s+/g, '-'));
-
-        if (topicObj) {
-            content = topicObj.content || '';
-            if (topicObj.keyPoints) {
-                keyPoints = Array.isArray(topicObj.keyPoints)
-                ? topicObj.keyPoints
-                : [topicObj.keyPoints];
-            }
-        }
+    if (!topicObj) {
+        alert("Topic not found");
+        return;
     }
 
-    const keyPointsList = document.getElementById('itemDetailKeyPoints');
-    const keyPointsSection = keyPointsList.parentElement;
-    if (keyPoints.length > 0) {
-        keyPointsSection.style.display = 'block';} 
-    else {
+    // Populate title
+    document.getElementById('itemDetailTitle').textContent =
+        topicObj.title;
+
+    document.getElementById('itemDetailTopicName').textContent =
+        topicObj.title;
+
+    // Populate content
+    document.getElementById('contentParagraph').innerHTML =
+        (topicObj.content || '')
+            .replace(/\n/g, '<br>');
+
+    // Hide key points section for now
+    const keyPointsList =
+        document.getElementById('itemDetailKeyPoints');
+
+    if (keyPointsList) {
+        const keyPointsSection =
+            keyPointsList.parentElement;
+
         keyPointsSection.style.display = 'none';
     }
 
-    document.getElementById('contentParagraph').innerHTML =(content || '').replace(/\n/g, '<br>');
+    // Delete button
+    const deleteTopicBtn =
+        document.getElementById('deleteTopicBtn');
+
+    if (deleteTopicBtn) {
+
+        deleteTopicBtn.style.display = 'block';
+
+        deleteTopicBtn.onclick = () => {
+            deleteTopic(topicId);
+        };
+    }
 
     // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
 function goBackToPillarDetail() {
