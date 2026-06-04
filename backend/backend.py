@@ -235,27 +235,32 @@ def add_topic(req: TopicRequest):
 
     data = load_content()
 
-    topic = req.dict()
+    topic = {
+        "id": req.id,
+        "title": req.title,
+        "pillarId": req.pillarId,
+        "description": req.description,
+        "content": req.content
+    }
+    print("TOPIC RECEIVED", req.dict())
 
+    # master topic repository
     data["topics"].append(topic)
 
-    for pillar in data["pillars"]:
+    # pillar mapping
+    pillar = next(
+        (
+            p for p in data["pillars"]
+            if p["id"] == req.pillarId
+        ),
+        None
+    )
 
-        if pillar["id"] == req.pillarId:
-
-            pillar.setdefault("topics", [])
-
-            pillar["topics"].append({
-                "id": req.id,
-                "title": req.title,
-                "description": req.description,
-                "content": req.content
-            })
-
-            break
+    if pillar:
+        pillar["topics"].append(topic)
 
     save_content(data)
-
+    print("AFTER SAVE", data)
     return {
         "success": True
     }
