@@ -53,6 +53,7 @@ class TopicRequest(BaseModel):
     title: str
     pillarId: str
     description: str = ""
+    content: str = ""
 
 def github_chat(messages):
 
@@ -247,7 +248,8 @@ def add_topic(req: TopicRequest):
             pillar["topics"].append({
                 "id": req.id,
                 "title": req.title,
-                "description": req.description
+                "description": req.description,
+                "content": req.content
             })
 
             break
