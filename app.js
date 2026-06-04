@@ -433,7 +433,7 @@ function showItemDetail(type, pillarId, index, title) {
 }
 
     const keyPointsList = document.getElementById('itemDetailKeyPoints');
-    const keyPointsSection = keyPointsList.closest('.detailCard');
+    const keyPointsSection = keyPointsList.parentElement;
     if (keyPoints.length > 0) {
         keyPointsSection.style.display = 'block';} 
     else {

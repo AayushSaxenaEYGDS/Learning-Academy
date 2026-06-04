@@ -53,6 +53,7 @@ class TopicRequest(BaseModel):
     title: str
     pillarId: str
     description: str = ""
+    content: str = ""
 
 def github_chat(messages):
 
