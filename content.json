@@ -1,40 +1,8 @@
 {
-  "pillars": [
-    {
-      "id": "new-pillar",
-      "title": "new pillar",
-      "description": "new pillar enterprise learning and capability pillar.",
-      "smeName": "my name",
-      "smeEmail": "email@email",
-      "smeRole": "my position",
-      "topics": [
-        {
-          "id": "new-topic",
-          "title": "new topic",
-          "pillarId": "new-pillar",
-          "description": "brief topic",
-          "content": "detail topci"
-        }
-      ],
+  "pillars": [],
       "sops": [],
       "materials": []
     }
   ],
-  "topics": [
-    {
-      "id": "model-training-test",
-      "title": "Model Training test",
-      "pillarId": "model-validation"
-    },
-    {
-      "id": "model-based-testing-(mbt)-in-software",
-      "title": "Model-Based Testing (MBT) in Software",
-      "pillarId": "model-validation"
-    },
-    {
-      "id": "new-topic",
-      "title": "new topic",
-      "pillarId": "new-pillar"
-    }
-  ]
+  "topics": []
 }
