@@ -119,10 +119,25 @@ def github_chat(messages):
 
         raise HTTPException(status_code=500, detail=str(e))
 
-CONTENT_FILE = os.path.join(
-    os.path.dirname(__file__),
-    "content.json"
-)
+BACKEND_CONTENT_FILE = os.path.join(os.path.dirname(__file__), "content.json")
+ROOT_CONTENT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "content.json"))
+CONTENT_FILE = ROOT_CONTENT_FILE
+
+# If a legacy backend/content.json exists but the root content.json does not,
+# migrate the legacy file so the service reads/writes the single root file.
+def ensure_content_file_migration():
+    try:
+        if not os.path.exists(CONTENT_FILE) and os.path.exists(BACKEND_CONTENT_FILE):
+            with open(BACKEND_CONTENT_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # Write migrated content to the root-level content.json
+            with open(CONTENT_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            logger.info(f"Migrated content from {BACKEND_CONTENT_FILE} to {CONTENT_FILE}")
+    except Exception as e:
+        logger.error(f"Failed migrating legacy content.json: {e}")
+
+ensure_content_file_migration()
 
 def load_content():
     if not os.path.exists(CONTENT_FILE):
