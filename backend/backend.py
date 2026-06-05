@@ -79,7 +79,18 @@ def github_chat(messages):
     }
 
     data = json.dumps(payload).encode("utf-8")
+    # master topic repository: store only a lightweight reference to avoid
+    # duplicating large topic content. Full topic details remain under the
+    # pillar's `topics` array.
+    topic_ref = {
+        "id": topic["id"],
+        "title": topic["title"],
+        "pillarId": topic["pillarId"]
+    }
 
+    # Avoid duplicate refs
+    if not any(t.get("id") == topic_ref["id"] for t in data.get("topics", [])):
+        data.setdefault("topics", []).append(topic_ref)
     req = urllib.request.Request(
         "https://models.github.ai/inference/chat/completions",
         data=data,
@@ -119,10 +130,94 @@ def github_chat(messages):
 
         raise HTTPException(status_code=500, detail=str(e))
 
-CONTENT_FILE = os.path.join(
-    os.path.dirname(__file__),
-    "content.json"
-)
+BACKEND_CONTENT_FILE = os.path.join(os.path.dirname(__file__), "content.json")
+ROOT_CONTENT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "content.json"))
+# Use a single root-level `content.json` to avoid duplicate files between
+# the project root and the `backend/` directory. This ensures all reads/writes
+# operate on the same file and the service will load the authoritative data
+# from the project root on restart/deploy.
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONTENT_FILE = os.path.join(PROJECT_ROOT, "content.json")
+
+# If a legacy backend/content.json exists but the root content.json does not,
+# migrate the legacy file so the service reads/writes the single root file.
+def ensure_content_file_migration():
+    try:
+        if not os.path.exists(CONTENT_FILE) and os.path.exists(BACKEND_CONTENT_FILE):
+            with open(BACKEND_CONTENT_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # Write migrated content to the root-level content.json
+            with open(CONTENT_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            logger.info(f"Migrated content from {BACKEND_CONTENT_FILE} to {CONTENT_FILE}")
+    except Exception as e:
+        logger.error(f"Failed migrating legacy content.json: {e}")
+
+ensure_content_file_migration()
+
+# Normalize topics storage so that full topic details live only under their
+# respective pillar objects. The top-level `topics` array will be kept as a
+# lightweight list of references (id, title, pillarId) to avoid duplicating
+# large content blobs and keep the file size smaller.
+def normalize_topics_storage():
+    try:
+        data = load_content()
+
+        pillars = data.get("pillars", [])
+
+        # If there are no pillars, nothing to normalize.
+        if not pillars:
+            return
+
+        # Build reference list from pillar-contained topics
+        topics_refs = []
+        seen = set()
+        for p in pillars:
+            for t in p.get("topics", []):
+                tid = t.get("id")
+                if not tid:
+                    continue
+                if tid in seen:
+                    continue
+                seen.add(tid)
+                topics_refs.append({
+                    "id": t.get("id"),
+                    "title": t.get("title"),
+                    "pillarId": t.get("pillarId")
+                })
+
+        # Decide if an update is necessary: length or ids differ, or top-level
+        # topics currently store full content fields.
+        existing_topics = data.get("topics", [])
+        need_update = False
+
+        if len(existing_topics) != len(topics_refs):
+            need_update = True
+        else:
+            existing_ids = [t.get("id") for t in existing_topics]
+            ref_ids = [t.get("id") for t in topics_refs]
+            if existing_ids != ref_ids:
+                need_update = True
+            else:
+                # If any existing topic appears to include the full content,
+                # we'll normalize to references.
+                for t in existing_topics:
+                    if "content" in t or "description" in t:
+                        need_update = True
+                        break
+
+        if need_update:
+            data["topics"] = topics_refs
+            # Persist the normalized file locally. We do NOT call the GitHub
+            # sync here to avoid creating commits during startup/migration.
+            save_content(data)
+            logger.info("Normalized topics: top-level topics converted to references from pillars")
+
+    except Exception as e:
+        logger.error(f"Failed to normalize topics storage: {e}")
+
+
+normalize_topics_storage()
 
 def load_content():
     if not os.path.exists(CONTENT_FILE):
@@ -347,8 +442,12 @@ def add_topic(req: TopicRequest):
             status_code=404,
             detail="Pillar not found"
         )
-
     pillar["topics"].append(topic)
+
+    # Keep top-level `topics` as lightweight references (id, title, pillarId)
+    topic_ref = {"id": topic["id"], "title": topic["title"], "pillarId": topic["pillarId"]}
+    if not any(t.get("id") == topic_ref["id"] for t in data.get("topics", [])):
+        data.setdefault("topics", []).append(topic_ref)
 
     save_content(data)
     try:
@@ -386,6 +485,13 @@ def delete_pillar(pillar_id: str):
     # remove pillar
 
     data["pillars"] = updated_pillars
+
+    # remove all top-level topic references belonging to pillar
+    data["topics"] = [
+        topic
+        for topic in data.get("topics", [])
+        if topic.get("pillarId") != pillar_id
+    ]
 
     save_content(data)
 
@@ -426,6 +532,9 @@ def delete_topic(topic_id: str):
             status_code=404,
             detail="Topic not found"
         )
+
+    # remove top-level topic reference
+    data["topics"] = [t for t in data.get("topics", []) if t.get("id") != topic_id]
 
     save_content(data)
 
