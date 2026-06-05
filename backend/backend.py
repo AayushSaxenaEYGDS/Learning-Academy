@@ -5,6 +5,10 @@ import json
 import os
 import urllib.request
 import urllib.error
+import base64
+import logging
+from datetime import datetime
+import requests
 from typing import List
 
 from fastapi import FastAPI, HTTPException
@@ -28,7 +32,14 @@ app.add_middleware(
 )
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+GITHUB_OWNER = os.getenv("GITHUB_OWNER", "")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "")
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+
+# Configure a module-level logger for reporting sync status
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
 
 class ChatRequest(BaseModel):
     message: str
@@ -129,6 +140,74 @@ def save_content(data):
         json.dump(data, f, indent=2)
 
 
+# GitHub synchronization helper
+def sync_content_to_github(data):
+    """
+    Sync the local `content.json` data to the configured GitHub repository
+
+    Steps:
+    - Read the current file SHA from the GitHub Contents API (if it exists)
+    - Base64-encode the updated JSON content
+    - PUT the new content to `/content.json` with a timestamped commit message
+    - Log success or errors. This function raises no exceptions to callers
+      so that local save remains authoritative even if sync fails.
+    """
+
+    # Ensure required env vars are present
+    if not (GITHUB_TOKEN and GITHUB_OWNER and GITHUB_REPO):
+        logger.error("GitHub sync skipped: missing GITHUB_TOKEN/OWNER/REPO")
+        return
+
+    api_url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/content.json"
+    params = {"ref": GITHUB_BRANCH} if GITHUB_BRANCH else {}
+
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+
+    # Prepare the file content
+    content_str = json.dumps(data, indent=2)
+    content_b64 = base64.b64encode(content_str.encode("utf-8")).decode("utf-8")
+
+    try:
+        # Try to get existing file to obtain the current SHA
+        resp = requests.get(api_url, headers=headers, params=params, timeout=15)
+
+        if resp.status_code == 200:
+            resp_json = resp.json()
+            sha = resp_json.get("sha")
+        elif resp.status_code == 404:
+            # File does not exist yet in repo; will create it (no sha)
+            sha = None
+        else:
+            # Unexpected response; log and abort sync
+            logger.error(f"GitHub sync failed fetching file: {resp.status_code} {resp.text}")
+            return
+
+        commit_message = f"Update content.json via backend sync at {datetime.utcnow().isoformat()}Z"
+
+        payload = {
+            "message": commit_message,
+            "content": content_b64,
+            "branch": GITHUB_BRANCH
+        }
+
+        if sha:
+            payload["sha"] = sha
+
+        put_resp = requests.put(api_url, headers=headers, json=payload, timeout=15)
+
+        if put_resp.status_code in (200, 201):
+            logger.info("Content synced to GitHub successfully")
+        else:
+            logger.error(f"GitHub sync failed: {put_resp.status_code} {put_resp.text}")
+
+    except Exception as e:
+        # Do not raise - local save should be considered authoritative.
+        logger.error(f"GitHub sync failed: {str(e)}")
+
+
 @app.get("/")
 def root():
     return {"status": "running"}
@@ -225,6 +304,13 @@ def add_pillar(req: PillarRequest):
 
     save_content(data)
 
+    # Attempt to sync the updated content to GitHub. Failure should not
+    # prevent a successful API response — local save is authoritative.
+    try:
+        sync_content_to_github(data)
+    except Exception as e:
+        logger.error(f"GitHub sync failed after add_pillar: {e}")
+
     return {
         "success": True
     }
@@ -260,6 +346,10 @@ def add_topic(req: TopicRequest):
         pillar["topics"].append(topic)
 
     save_content(data)
+    try:
+        sync_content_to_github(data)
+    except Exception as e:
+        logger.error(f"GitHub sync failed after add_topic: {e}")
     print("AFTER SAVE", data)
     return {
         "success": True
@@ -301,6 +391,11 @@ def delete_pillar(pillar_id: str):
     ]
 
     save_content(data)
+
+    try:
+        sync_content_to_github(data)
+    except Exception as e:
+        logger.error(f"GitHub sync failed after delete_pillar: {e}")
 
     return {
         "success": True,
@@ -354,6 +449,11 @@ def delete_topic(topic_id: str):
             break
 
     save_content(data)
+
+    try:
+        sync_content_to_github(data)
+    except Exception as e:
+        logger.error(f"GitHub sync failed after delete_topic: {e}")
 
     return {
         "success": True,
