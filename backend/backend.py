@@ -331,7 +331,7 @@ def add_topic(req: TopicRequest):
     print("TOPIC RECEIVED", req.dict())
 
     # master topic repository
-    data["topics"].append(topic)
+    # data["topics"].append(topic)
 
     # pillar mapping
     pillar = next(
@@ -342,8 +342,13 @@ def add_topic(req: TopicRequest):
         None
     )
 
-    if pillar:
-        pillar["topics"].append(topic)
+    if not pillar:
+        raise HTTPException(
+            status_code=404,
+            detail="Pillar not found"
+        )
+
+    pillar["topics"].append(topic)
 
     save_content(data)
     try:
@@ -382,14 +387,6 @@ def delete_pillar(pillar_id: str):
 
     data["pillars"] = updated_pillars
 
-    # remove all topics belonging to pillar
-
-    data["topics"] = [
-        topic
-        for topic in data["topics"]
-        if topic.get("pillarId") != pillar_id
-    ]
-
     save_content(data)
 
     try:
@@ -410,43 +407,25 @@ def delete_topic(topic_id: str):
     data = load_content()
 
     topic_found = False
-    pillar_id = None
 
-    remaining_topics = []
+    for pillar in data["pillars"]:
 
-    for topic in data["topics"]:
+        updated_topics = []
 
-        if topic["id"] == topic_id:
+        for topic in pillar.get("topics", []):
 
-            topic_found = True
-            pillar_id = topic["pillarId"]
+            if topic["id"] == topic_id:
+                topic_found = True
+            else:
+                updated_topics.append(topic)
 
-        else:
-            remaining_topics.append(topic)
+        pillar["topics"] = updated_topics
 
     if not topic_found:
-
         raise HTTPException(
             status_code=404,
             detail="Topic not found"
         )
-
-    data["topics"] = remaining_topics
-
-    # remove topic from pillar object
-
-    for pillar in data["pillars"]:
-
-        if pillar["id"] == pillar_id:
-
-            pillar["topics"] = [
-
-                t for t in pillar.get("topics", [])
-
-                if t["id"] != topic_id
-            ]
-
-            break
 
     save_content(data)
 

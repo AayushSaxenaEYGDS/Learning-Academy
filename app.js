@@ -393,7 +393,15 @@ function showItemDetail(type, pillarId, topicId) {
     itemDetailPage.style.display = 'block';
 
     // Find topic from master topics array
-    let topicObj = topics.find(t => t.id === topicId);
+    let topicObj = null;
+
+    const pillar = pillars.find(
+        p => p.id === pillarId
+    );
+
+    if (pillar) {
+        topicObj = pillar.topics.find(t => t.id === topicId);
+    }
 
     // Fallback: try to find topic inside the pillar's topics array
     if (!topicObj && pillarId) {
