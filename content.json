@@ -67,6 +67,17 @@
       ],
       "sops": [],
       "materials": []
+    },
+    {
+      "id": "data/etl-testing",
+      "title": "Data/ETL Testing",
+      "description": "Data/ETL Testing enterprise learning and capability pillar.",
+      "smeName": "Arun vignesh S",
+      "smeEmail": "Arun.Vignesh.Sanjeevi@gds.ey.com",
+      "smeRole": "QA lead",
+      "topics": [],
+      "sops": [],
+      "materials": []
     }
   ],
   "topics": [
