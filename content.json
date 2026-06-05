@@ -7,7 +7,15 @@
       "smeName": "Aayush Saxena",
       "smeEmail": "aayush@pfizer.com",
       "smeRole": "Model Consultant",
-      "topics": [],
+      "topics": [
+        {
+          "id": "validation-test",
+          "title": "Validation Test",
+          "pillarId": "ai-model-validation-(test)",
+          "description": "This is about Validation and testing",
+          "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
+        }
+      ],
       "sops": [],
       "materials": []
     }
@@ -17,6 +25,11 @@
       "id": "new-topic",
       "title": "new topic",
       "pillarId": "new-pillar"
+    },
+    {
+      "id": "validation-test",
+      "title": "Validation Test",
+      "pillarId": "ai-model-validation-(test)"
     }
   ]
 }
