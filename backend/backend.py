@@ -79,18 +79,6 @@ def github_chat(messages):
     }
 
     data = json.dumps(payload).encode("utf-8")
-    # master topic repository: store only a lightweight reference to avoid
-    # duplicating large topic content. Full topic details remain under the
-    # pillar's `topics` array.
-    topic_ref = {
-        "id": topic["id"],
-        "title": topic["title"],
-        "pillarId": topic["pillarId"]
-    }
-
-    # Avoid duplicate refs
-    if not any(t.get("id") == topic_ref["id"] for t in data.get("topics", [])):
-        data.setdefault("topics", []).append(topic_ref)
     req = urllib.request.Request(
         "https://models.github.ai/inference/chat/completions",
         data=data,
@@ -216,9 +204,6 @@ def normalize_topics_storage():
     except Exception as e:
         logger.error(f"Failed to normalize topics storage: {e}")
 
-
-normalize_topics_storage()
-
 def load_content():
     if not os.path.exists(CONTENT_FILE):
         return {
@@ -233,6 +218,16 @@ def load_content():
 def save_content(data):
     with open(CONTENT_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
+
+
+# Run normalization after save_content/load_content are defined so that the
+# helper functions are available. This converts any legacy duplicated topic
+# entries to the normalized format on startup without creating a GitHub commit.
+try:
+    normalize_topics_storage()
+except Exception as _:
+    # Already logged inside the function; swallow here to avoid startup crash
+    pass
 
 
 # GitHub synchronization helper
