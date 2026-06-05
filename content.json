@@ -14,6 +14,34 @@
           "pillarId": "ai-model-validation-(test)",
           "description": "This is about Validation and testing",
           "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
+        },
+        {
+          "id": "validation-test",
+          "title": "Validation Test",
+          "pillarId": "ai-model-validation-(test)",
+          "description": "This is about Validation and testing",
+          "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
+        },
+        {
+          "id": "validation-test",
+          "title": "Validation Test",
+          "pillarId": "ai-model-validation-(test)",
+          "description": "This is about Validation and testing",
+          "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
+        },
+        {
+          "id": "validation-test",
+          "title": "Validation Test",
+          "pillarId": "ai-model-validation-(test)",
+          "description": "This is about Validation and testing",
+          "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
+        },
+        {
+          "id": "validation-test",
+          "title": "Validation Test",
+          "pillarId": "ai-model-validation-(test)",
+          "description": "This is about Validation and testing",
+          "content": "Model-based testing (MBT) uses abstract models of a system to automatically generate test cases, enabling systematic testing of complex systems. Rather than writing tests manually, testers create models representing expected behavior, which then produce comprehensive test scenarios."
         }
       ],
       "sops": [],
