@@ -7,10 +7,26 @@
       "smeName": "Avinash Kumar",
       "smeEmail": "avinash.kumar@test.com",
       "smeRole": "Model Consultant",
-      "topics": [],
+      "topics": [
+        {
+          "id": "model-training-test",
+          "title": "Model Training test",
+          "pillarId": "model-validation",
+          "description": "Short desc",
+          "content": "Dertailed desc"
+        }
+      ],
       "sops": [],
       "materials": []
     }
   ],
-  "topics": []
+  "topics": [
+    {
+      "id": "model-training-test",
+      "title": "Model Training test",
+      "pillarId": "model-validation",
+      "description": "Short desc",
+      "content": "Dertailed desc"
+    }
+  ]
 }
