@@ -14,10 +14,29 @@
           "pillarId": "model-validation",
           "description": "Short test",
           "content": "Dest test"
+        },
+        {
+          "id": "model-based-testing-(mbt)-in-software",
+          "title": "Model-Based Testing (MBT) in Software",
+          "pillarId": "model-validation",
+          "description": "MBT is an automation technique where test cases are automatically generated from an abstract model (e.g., flowcharts, state diagrams, or UML diagrams) that represents how the system should behave.",
+          "content": "Early Defect Detection: Flaws are found during the design phase rather than the more expensive coding phase.Increased Coverage: Smart algorithms explore all system pathways, edge cases, and boundary conditions.Simplified Maintenance: When business logic or system requirements change, you update the model, and the test cases adjust automatically.Time Efficiency: Saves testing teams weeks of manual test writing by automatically generating scenarios."
         }
       ],
       "sops": [],
       "materials": []
+    }
+  ],
+  "topics": [
+    {
+      "id": "model-training-test",
+      "title": "Model Training test",
+      "pillarId": "model-validation"
+    },
+    {
+      "id": "model-based-testing-(mbt)-in-software",
+      "title": "Model-Based Testing (MBT) in Software",
+      "pillarId": "model-validation"
     }
   ]
 }
