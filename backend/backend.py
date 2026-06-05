@@ -486,13 +486,6 @@ def delete_pillar(pillar_id: str):
 
     data["pillars"] = updated_pillars
 
-    # remove all top-level topic references belonging to pillar
-    data["topics"] = [
-        topic
-        for topic in data.get("topics", [])
-        if topic.get("pillarId") != pillar_id
-    ]
-
     save_content(data)
 
     try:
@@ -516,16 +509,13 @@ def delete_topic(topic_id: str):
 
     for pillar in data["pillars"]:
 
-        updated_topics = []
-
-        for topic in pillar.get("topics", []):
-
-            if topic["id"] == topic_id:
-                topic_found = True
-            else:
-                updated_topics.append(topic)
-
-        pillar["topics"] = updated_topics
+        pillar["topics"] = [
+            t for t in pillar.get("topics", [])
+            if not (
+                t.get("id") == topic_id
+                and (topic_found := True)
+            )
+        ]
 
     if not topic_found:
         raise HTTPException(
@@ -533,15 +523,14 @@ def delete_topic(topic_id: str):
             detail="Topic not found"
         )
 
-    # remove top-level topic reference
-    data["topics"] = [t for t in data.get("topics", []) if t.get("id") != topic_id]
-
     save_content(data)
 
     try:
         sync_content_to_github(data)
     except Exception as e:
-        logger.error(f"GitHub sync failed after delete_topic: {e}")
+        logger.error(
+            f"GitHub sync failed after delete_topic: {e}"
+        )
 
     return {
         "success": True,
