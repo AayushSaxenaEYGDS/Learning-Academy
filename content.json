@@ -75,7 +75,15 @@
       "smeName": "Arun vignesh S",
       "smeEmail": "Arun.Vignesh.Sanjeevi@gds.ey.com",
       "smeRole": "QA lead",
-      "topics": [],
+      "topics": [
+        {
+          "id": "database",
+          "title": "Database",
+          "pillarId": "data/etl-testing",
+          "description": "\uf0b7 A database is an organized set of informa on that can be electronically stored and retrieved.  \n\uf0b7 Databases are made to effec vely manage, store, and retrieve data. \n\uf0b7 Soware known as a database management system (DBMS) organizes and controls incoming",
+          "content": "data and gives users or other programs the ability to edit or extract it. \n\uf0b7 My SQL, Microso Access, Oracle DB, SQL Server, and others are a few examples.  \n\uf0b7 A query is an expression that asks a database table or group of tables for data or informa on.  \n\uf0b7 SQL can be used to produce simple or sophis cated queries.  Database types include \nDatabases that are rela onal and non-rela ona"
+        }
+      ],
       "sops": [],
       "materials": []
     }
@@ -90,6 +98,11 @@
       "id": "validation-test",
       "title": "Validation Test",
       "pillarId": "ai-model-validation-(test)"
+    },
+    {
+      "id": "database",
+      "title": "Database",
+      "pillarId": "data/etl-testing"
     }
   ]
 }
