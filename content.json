@@ -7,10 +7,24 @@
       "smeName": "my name",
       "smeEmail": "email@email",
       "smeRole": "my position",
-      "topics": [],
+      "topics": [
+        {
+          "id": "new-topic",
+          "title": "new topic",
+          "pillarId": "new-pillar",
+          "description": "new detailed",
+          "content": "new content"
+        }
+      ],
       "sops": [],
       "materials": []
     }
   ],
-  "topics": []
+  "topics": [
+    {
+      "id": "new-topic",
+      "title": "new topic",
+      "pillarId": "new-pillar"
+    }
+  ]
 }
