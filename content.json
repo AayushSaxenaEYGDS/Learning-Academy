@@ -1,5 +1,17 @@
 {
-  "pillars": [],
+  "pillars": [
+    {
+      "id": "ai-model-validation-(test)",
+      "title": "AI Model Validation (Test)",
+      "description": "AI Model Validation (Test) enterprise learning and capability pillar.",
+      "smeName": "Aayush Saxena",
+      "smeEmail": "aayush@pfizer.com",
+      "smeRole": "Model Consultant",
+      "topics": [],
+      "sops": [],
+      "materials": []
+    }
+  ],
   "topics": [
     {
       "id": "new-topic",
