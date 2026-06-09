@@ -80,7 +80,15 @@
       "smeName": "Tushar Banerjee",
       "smeEmail": "tushar.banerjee@gds.ey.com",
       "smeRole": "Validation SME",
-      "topics": [],
+      "topics": [
+        {
+          "id": "understanding-corporate-policy-413",
+          "title": "Understanding Corporate policy 413",
+          "pillarId": "compliance-&-validation",
+          "description": "Corporate policy 413 outlines how Pfizer manages AI RIsk and is supported by Practical supplements linked in the appendix. Together these resources help you to understand and meet policy requirement enabling to unlock AI benefits while protecting Pfizer and patients.",
+          "content": "CP413 and its supplements provide principles and minimum requirements to help us manage AI risks. \nGuiding Principle: \n-  Human centered oversight\n- Fairness\n- Privacy and Protection\n- Transparency\n- Reliability\n\nProhibited AI usage: \n- Public AI tools, including free platforms and unreviewed open-source\n-Social scoring\n\nIdentifying Higher risk AI scenarios: Complete a documented risk assessment also known as RAMP. RAMP is designed to identify potential risks and plan appropriate mitigations. RAMP is required for High Risk AI like Gen AI and Agentic AI use cases. Examples of higher risk AI are Human impact AI, which directly influences or determines outcomes affecting a person's health, medical care, safety or employment. Autonomous Agentic AI."
+        }
+      ],
       "sops": [],
       "materials": []
     }
@@ -120,6 +128,11 @@
       "id": "test-case-creation-and-execution-in-qtest",
       "title": "Test Case Creation and Execution in qtest",
       "pillarId": "test"
+    },
+    {
+      "id": "understanding-corporate-policy-413",
+      "title": "Understanding Corporate policy 413",
+      "pillarId": "compliance-&-validation"
     }
   ]
 }
