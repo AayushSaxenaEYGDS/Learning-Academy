@@ -26,7 +26,15 @@
       "smeName": "Test",
       "smeEmail": "test@test",
       "smeRole": "Test",
-      "topics": [],
+      "topics": [
+        {
+          "id": "test",
+          "title": "test",
+          "pillarId": "test",
+          "description": "test short",
+          "content": "test detailed"
+        }
+      ],
       "sops": [],
       "materials": []
     }
@@ -36,6 +44,11 @@
       "id": "database",
       "title": "Database",
       "pillarId": "data/etl-testing"
+    },
+    {
+      "id": "test",
+      "title": "test",
+      "pillarId": "test"
     }
   ]
 }
