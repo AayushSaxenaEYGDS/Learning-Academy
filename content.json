@@ -20,12 +20,12 @@
       "materials": []
     },
     {
-      "id": "compliance-&-validation",
-      "title": "Compliance & Validation",
-      "description": "Compliance & Validation enterprise learning and capability pillar.",
-      "smeName": "Tushar Banerjee",
-      "smeEmail": "tushar.banerjee@gds.ey.com",
-      "smeRole": "Validation SME",
+      "id": "test",
+      "title": "Test",
+      "description": "Test enterprise learning and capability pillar.",
+      "smeName": "Test",
+      "smeEmail": "test@test",
+      "smeRole": "Test",
       "topics": [],
       "sops": [],
       "materials": []
