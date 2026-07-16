@@ -25,17 +25,9 @@ simple-frontend/
 ## 🎯 Sections
 
 ### Header
-- Logo: "Pfizer Learning Academy"
 - Navigation: Home, Pillars, Topics
 - Search bar with real-time results
 - Explore Pillars CTA button
-- EY & Pfizer branding logos
-
-### Hero Section
-- Main headline: "Accelerate Enterprise Learning"
-- Descriptive subtitle
-- Call-to-action buttons
-- Quick stats chips
 
 ### Stats Strip
 - 4 Business Pillars
