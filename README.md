@@ -1,6 +1,6 @@
-# Pfizer Learning Academy - Simple Frontend
+# Learning Academy - Simple Frontend
 
-A lightweight HTML/CSS/JavaScript frontend for Pfizer Learning Academy. This is a static version without React dependencies, designed for quick deployment and easy customization.
+A lightweight HTML/CSS/JavaScript frontend for Learning Academy. This is a static version without React dependencies, designed for quick deployment and easy customization.
 
 ## 🚀 Features
 
